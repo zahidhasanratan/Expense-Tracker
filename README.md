@@ -109,33 +109,88 @@ The app will automatically open on your connected Android device or emulator.
 
 ## 📦 Building for Production
 
-### Build APK (Android)
+### Build APK (Android) - EAS Build (Recommended)
+
+The easiest and best way to build an installable APK:
+
+#### ✅ Step 1: Install EAS CLI (required for building APK)
+
+Run this once:
 
 ```bash
-expo build:android
-```
-
-Or using EAS Build (recommended):
-
-```bash
-# Install EAS CLI
 npm install -g eas-cli
-
-# Login to Expo
-eas login
-
-# Configure build
-eas build:configure
-
-# Build APK
-eas build --platform android --profile preview
 ```
 
-### Build AAB (Android App Bundle)
+Verify installation:
+
+```bash
+eas --version
+```
+
+#### ✅ Step 2: Login to Expo
+
+```bash
+eas login
+```
+
+> **Note:** If you don't have an Expo account, create one — it takes 1 minute at [expo.dev](https://expo.dev)
+
+#### ✅ Step 3: Configure your project (run once)
+
+Inside your project folder:
+
+```bash
+eas build:configure
+```
+
+This will create `eas.json` automatically.
+
+#### ✅ Step 4: Build APK (the file you can install on your Android phone)
+
+Use this command:
+
+```bash
+eas build -p android --profile preview
+```
+
+This command will:
+- Upload your project to Expo build servers
+- Create an APK
+- Give you a download link
+
+#### 📥 Step 5: Download APK
+
+Once the build finishes, Expo will show:
+
+```
+✔ Build complete
+→ Download: https://expo.dev/accounts/xxxx/builds/xxxx
+```
+
+**To install:**
+1. Open that link from your phone
+2. Download the APK
+3. Install it on your Android device
+
+**Done! 🎉**
+
+### Build AAB (Android App Bundle) for Google Play Store
 
 ```bash
 eas build --platform android --profile production
 ```
+
+### Alternative: Local Build (Advanced)
+
+If you prefer building locally:
+
+```bash
+# Install Android build tools
+# Then run:
+expo build:android
+```
+
+> **Note:** EAS Build is recommended as it handles all dependencies and configurations automatically.
 
 ## 🎨 Design & UI
 
