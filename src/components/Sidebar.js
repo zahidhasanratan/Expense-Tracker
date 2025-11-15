@@ -6,57 +6,91 @@ import {
   TouchableOpacity,
   Modal,
   Animated,
+  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeStore } from '../store/useThemeStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
+import { useExpenseStore } from '../store/useExpenseStore';
+import { formatCurrency } from '../utils/format';
+import { getStartOfMonth, getEndOfMonth } from '../utils/format';
 
 /**
  * Sidebar Component
- * Custom sidebar navigation menu
+ * Professional mobile app navigation sidebar
  */
 const Sidebar = ({ visible, onClose, navigation, currentRoute }) => {
   const theme = useThemeStore((state) => state.theme);
   const currency = useCurrencyStore((state) => state.currency);
+  const expenses = useExpenseStore((state) => state.expenses);
+  const getTotalByDateRange = useExpenseStore((state) => state.getTotalByDateRange);
   const isDark = theme === 'dark';
 
-  const slideAnim = React.useRef(new Animated.Value(-300)).current;
+  const slideAnim = React.useRef(new Animated.Value(-320)).current;
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+
+  // Calculate monthly total
+  const monthlyTotal = React.useMemo(() => {
+    const start = getStartOfMonth(new Date());
+    const end = getEndOfMonth(new Date());
+    return getTotalByDateRange(start, end);
+  }, [expenses, getTotalByDateRange]);
 
   React.useEffect(() => {
     if (visible) {
-      Animated.spring(slideAnim, {
-        toValue: 0,
-        useNativeDriver: true,
-        tension: 50,
-        friction: 7,
-      }).start();
+      Animated.parallel([
+        Animated.spring(slideAnim, {
+          toValue: 0,
+          useNativeDriver: true,
+          tension: 50,
+          friction: 8,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
     } else {
-      Animated.timing(slideAnim, {
-        toValue: -300,
-        duration: 200,
-        useNativeDriver: true,
-      }).start();
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: -320,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
     }
   }, [visible]);
 
   const menuItems = [
     {
-      name: 'Home',
+      name: 'Dashboard',
       route: 'Home',
-      icon: 'home-outline',
+      icon: 'home',
       activeIcon: 'home',
+      color: '#4CAF50',
+      description: 'Overview & Summary',
     },
     {
       name: 'Reports',
       route: 'Reports',
-      icon: 'bar-chart-outline',
+      icon: 'bar-chart',
       activeIcon: 'bar-chart',
+      color: '#2196F3',
+      description: 'Monthly Analytics',
     },
     {
       name: 'Settings',
       route: 'Settings',
-      icon: 'settings-outline',
+      icon: 'settings',
       activeIcon: 'settings',
+      color: '#FF9800',
+      description: 'Preferences & Data',
     },
   ];
 
@@ -81,11 +115,19 @@ const Sidebar = ({ visible, onClose, navigation, currentRoute }) => {
       animationType="none"
       onRequestClose={onClose}
     >
-      <TouchableOpacity
-        style={styles.overlay}
-        activeOpacity={1}
-        onPress={onClose}
+      <Animated.View
+        style={[
+          styles.overlay,
+          {
+            opacity: fadeAnim,
+          },
+        ]}
       >
+        <TouchableOpacity
+          style={styles.overlayTouchable}
+          activeOpacity={1}
+          onPress={onClose}
+        />
         <Animated.View
           style={[
             styles.sidebar,
@@ -94,52 +136,92 @@ const Sidebar = ({ visible, onClose, navigation, currentRoute }) => {
             },
           ]}
         >
-          <View style={styles.sidebarContent}>
-            {/* Header */}
-            <View style={styles.header}>
-              <View style={styles.headerContent}>
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Header Section */}
+            <View style={styles.headerSection}>
+              <View style={styles.headerTop}>
                 <View style={styles.logoContainer}>
-                  <Ionicons name="wallet" size={32} color="#4CAF50" />
+                  <View style={styles.logoCircle}>
+                    <Ionicons name="wallet" size={32} color="#FFFFFF" />
+                  </View>
                 </View>
-                <View style={styles.headerText}>
-                  <Text style={styles.appName}>Expense Tracker</Text>
-                  {currency && (
-                    <Text style={styles.currencyText}>
-                      {currency.flag} {currency.code}
-                    </Text>
-                  )}
-                </View>
+                <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                  <Ionicons name="close" size={24} color={isDark ? '#FFFFFF' : '#212121'} />
+                </TouchableOpacity>
               </View>
-              <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                <Ionicons name="close" size={24} color={isDark ? '#FFFFFF' : '#212121'} />
-              </TouchableOpacity>
+              <Text style={styles.appName}>Expense Tracker</Text>
+              {currency && (
+                <View style={styles.currencyBadge}>
+                  <Text style={styles.currencyFlag}>{currency.flag}</Text>
+                  <Text style={styles.currencyCode}>{currency.code}</Text>
+                </View>
+              )}
             </View>
 
-            {/* Menu Items */}
-            <View style={styles.menuContainer}>
-              {menuItems.map((item) => {
+            {/* Monthly Summary Card */}
+            <View style={styles.summaryCard}>
+              <View style={styles.summaryHeader}>
+                <Ionicons name="calendar" size={20} color={isDark ? '#B0B0B0' : '#757575'} />
+                <Text style={styles.summaryLabel}>This Month</Text>
+              </View>
+              <Text style={styles.summaryAmount}>
+                {formatCurrency(monthlyTotal, currency?.code)}
+              </Text>
+              <Text style={styles.summaryCount}>
+                {expenses.length} {expenses.length === 1 ? 'expense' : 'expenses'}
+              </Text>
+            </View>
+
+            {/* Navigation Menu */}
+            <View style={styles.menuSection}>
+              <Text style={styles.sectionTitle}>Navigation</Text>
+              {menuItems.map((item, index) => {
                 const isActive = currentRoute === item.route;
                 return (
                   <TouchableOpacity
                     key={item.route}
-                    style={[styles.menuItem, isActive && styles.activeMenuItem]}
+                    style={[
+                      styles.menuItem,
+                      isActive && styles.activeMenuItem,
+                    ]}
                     onPress={() => handleNavigate(item.route)}
-                    activeOpacity={0.7}
+                    activeOpacity={0.6}
                   >
-                    <Ionicons
-                      name={isActive ? item.activeIcon : item.icon}
-                      size={24}
-                      color={isActive ? '#4CAF50' : (isDark ? '#B0B0B0' : '#757575')}
-                    />
-                    <Text
+                    <View
                       style={[
-                        styles.menuText,
-                        isActive && styles.activeMenuText,
+                        styles.menuIconContainer,
+                        { backgroundColor: isActive ? `${item.color}20` : 'transparent' },
                       ]}
                     >
-                      {item.name}
-                    </Text>
-                    {isActive && <View style={styles.activeIndicator} />}
+                      <Ionicons
+                        name={isActive ? item.activeIcon : item.icon}
+                        size={24}
+                        color={isActive ? item.color : (isDark ? '#B0B0B0' : '#757575')}
+                      />
+                    </View>
+                    <View style={styles.menuTextContainer}>
+                      <Text
+                        style={[
+                          styles.menuText,
+                          isActive && styles.activeMenuText,
+                        ]}
+                      >
+                        {item.name}
+                      </Text>
+                      <Text style={styles.menuDescription}>{item.description}</Text>
+                    </View>
+                    {isActive && (
+                      <View style={[styles.activeIndicator, { backgroundColor: item.color }]} />
+                    )}
+                    <Ionicons
+                      name="chevron-forward"
+                      size={20}
+                      color={isActive ? item.color : (isDark ? '#3C3C3C' : '#E0E0E0')}
+                    />
                   </TouchableOpacity>
                 );
               })}
@@ -147,11 +229,13 @@ const Sidebar = ({ visible, onClose, navigation, currentRoute }) => {
 
             {/* Footer */}
             <View style={styles.footer}>
+              <View style={styles.footerDivider} />
               <Text style={styles.footerText}>Version 1.0.0</Text>
+              <Text style={styles.footerSubtext}>Track your expenses smartly</Text>
             </View>
-          </View>
+          </ScrollView>
         </Animated.View>
-      </TouchableOpacity>
+      </Animated.View>
     </Modal>
   );
 };
@@ -160,105 +244,199 @@ const getStyles = (isDark) =>
   StyleSheet.create({
     overlay: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backgroundColor: 'rgba(0, 0, 0, 0.6)',
       flexDirection: 'row',
     },
-    sidebar: {
-      width: 280,
-      height: '100%',
-      backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
-      shadowColor: '#000',
-      shadowOffset: { width: 2, height: 0 },
-      shadowOpacity: 0.25,
-      shadowRadius: 8,
-      elevation: 8,
-    },
-    sidebarContent: {
+    overlayTouchable: {
       flex: 1,
-      paddingTop: 50,
     },
-    header: {
+    sidebar: {
+      width: 320,
+      height: '100%',
+      backgroundColor: isDark ? '#1A1A1A' : '#FFFFFF',
+      shadowColor: '#000',
+      shadowOffset: { width: 4, height: 0 },
+      shadowOpacity: 0.3,
+      shadowRadius: 16,
+      elevation: 16,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    scrollContent: {
+      paddingBottom: 20,
+    },
+    headerSection: {
+      backgroundColor: isDark ? '#2C2C2C' : '#4CAF50',
+      paddingTop: 60,
+      paddingBottom: 24,
+      paddingHorizontal: 20,
+      borderBottomLeftRadius: 24,
+      borderBottomRightRadius: 24,
+    },
+    headerTop: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      paddingHorizontal: 20,
-      paddingBottom: 20,
-      borderBottomWidth: 1,
-      borderBottomColor: isDark ? '#3C3C3C' : '#E0E0E0',
-    },
-    headerContent: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      flex: 1,
+      marginBottom: 20,
     },
     logoContainer: {
-      width: 48,
-      height: 48,
-      borderRadius: 24,
-      backgroundColor: '#4CAF5020',
+      alignItems: 'center',
+    },
+    logoCircle: {
+      width: 64,
+      height: 64,
+      borderRadius: 32,
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
       justifyContent: 'center',
       alignItems: 'center',
-      marginRight: 12,
+      borderWidth: 2,
+      borderColor: 'rgba(255, 255, 255, 0.3)',
     },
-    headerText: {
-      flex: 1,
+    closeButton: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     appName: {
+      fontSize: 24,
+      fontWeight: '700',
+      color: '#FFFFFF',
+      marginBottom: 12,
+      textShadowColor: 'rgba(0, 0, 0, 0.2)',
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 2,
+    },
+    currencyBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      alignSelf: 'flex-start',
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 16,
+    },
+    currencyFlag: {
       fontSize: 18,
+      marginRight: 6,
+    },
+    currencyCode: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: '#FFFFFF',
+    },
+    summaryCard: {
+      backgroundColor: isDark ? '#2C2C2C' : '#F8F9FA',
+      marginHorizontal: 20,
+      marginTop: 20,
+      padding: 20,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: isDark ? '#3C3C3C' : '#E0E0E0',
+    },
+    summaryHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    summaryLabel: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: isDark ? '#B0B0B0' : '#757575',
+      marginLeft: 8,
+    },
+    summaryAmount: {
+      fontSize: 28,
       fontWeight: '700',
       color: isDark ? '#FFFFFF' : '#212121',
       marginBottom: 4,
     },
-    currencyText: {
-      fontSize: 14,
-      color: isDark ? '#B0B0B0' : '#757575',
+    summaryCount: {
+      fontSize: 12,
+      color: isDark ? '#757575' : '#9E9E9E',
     },
-    closeButton: {
-      padding: 4,
+    menuSection: {
+      marginTop: 24,
+      paddingHorizontal: 20,
     },
-    menuContainer: {
-      flex: 1,
-      paddingTop: 20,
+    sectionTitle: {
+      fontSize: 12,
+      fontWeight: '600',
+      color: isDark ? '#757575' : '#9E9E9E',
+      textTransform: 'uppercase',
+      letterSpacing: 1,
+      marginBottom: 12,
     },
     menuItem: {
       flexDirection: 'row',
       alignItems: 'center',
       paddingVertical: 16,
-      paddingHorizontal: 20,
-      marginHorizontal: 12,
-      marginVertical: 4,
-      borderRadius: 12,
+      paddingHorizontal: 16,
+      marginBottom: 8,
+      borderRadius: 16,
+      backgroundColor: isDark ? '#252525' : '#F8F9FA',
       position: 'relative',
     },
     activeMenuItem: {
       backgroundColor: isDark ? '#2C2C2C' : '#F1F8E9',
+      borderWidth: 1,
+      borderColor: isDark ? '#3C3C3C' : '#E8F5E9',
+    },
+    menuIconContainer: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 16,
+    },
+    menuTextContainer: {
+      flex: 1,
     },
     menuText: {
       fontSize: 16,
-      fontWeight: '500',
+      fontWeight: '600',
       color: isDark ? '#B0B0B0' : '#757575',
-      marginLeft: 16,
+      marginBottom: 2,
     },
     activeMenuText: {
-      color: '#4CAF50',
+      color: isDark ? '#FFFFFF' : '#212121',
       fontWeight: '700',
+    },
+    menuDescription: {
+      fontSize: 12,
+      color: isDark ? '#757575' : '#9E9E9E',
     },
     activeIndicator: {
       position: 'absolute',
       left: 0,
       width: 4,
-      height: '70%',
-      backgroundColor: '#4CAF50',
+      height: '60%',
       borderRadius: 2,
     },
     footer: {
-      padding: 20,
-      borderTopWidth: 1,
-      borderTopColor: isDark ? '#3C3C3C' : '#E0E0E0',
+      marginTop: 24,
+      paddingHorizontal: 20,
+      paddingBottom: 20,
+    },
+    footerDivider: {
+      height: 1,
+      backgroundColor: isDark ? '#3C3C3C' : '#E0E0E0',
+      marginBottom: 16,
     },
     footerText: {
       fontSize: 12,
+      fontWeight: '500',
       color: isDark ? '#555555' : '#9E9E9E',
+      textAlign: 'center',
+      marginBottom: 4,
+    },
+    footerSubtext: {
+      fontSize: 11,
+      color: isDark ? '#444444' : '#BDBDBD',
       textAlign: 'center',
     },
   });

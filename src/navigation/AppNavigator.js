@@ -5,6 +5,7 @@ import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeStore } from '../store/useThemeStore';
 import Sidebar from '../components/Sidebar';
+import HamburgerMenu from '../components/HamburgerMenu';
 
 // Screens
 import HomeScreen from '../screens/HomeScreen';
@@ -73,12 +74,10 @@ const AppNavigator = () => {
               fontWeight: '700',
             },
             headerLeft: showMenu ? () => (
-              <TouchableOpacity
+              <HamburgerMenu
                 onPress={() => setSidebarVisible(true)}
-                style={{ marginLeft: 16, padding: 8 }}
-              >
-                <Ionicons name="menu" size={28} color="#FFFFFF" />
-              </TouchableOpacity>
+                isOpen={sidebarVisible}
+              />
             ) : () => (
               <TouchableOpacity
                 onPress={() => navigation.goBack()}
