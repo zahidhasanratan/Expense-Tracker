@@ -179,8 +179,7 @@ const HomeScreen = ({ navigation }) => {
             </Text>
             {!searchQuery && (
               <TouchableOpacity onPress={() => {
-                // Navigate to Reports tab
-                navigation.getParent()?.navigate('Reports');
+                navigation.navigate('ReportsMain');
               }}>
                 <Text style={styles.viewAllText}>View All</Text>
               </TouchableOpacity>
@@ -290,7 +289,7 @@ const getStyles = (isDark) =>
     fab: {
       position: 'absolute',
       right: 20,
-      bottom: 100,
+      bottom: 30,
       width: 56,
       height: 56,
       borderRadius: 28,

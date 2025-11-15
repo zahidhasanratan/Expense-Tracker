@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AppNavigator from './src/navigation/AppNavigator';
+import SplashScreen from './src/screens/SplashScreen';
 import { useExpenseStore } from './src/store/useExpenseStore';
 import { useThemeStore } from './src/store/useThemeStore';
 import { useCurrencyStore } from './src/store/useCurrencyStore';
@@ -12,6 +13,7 @@ import { useBudgetStore } from './src/store/useBudgetStore';
  * Initializes stores and renders navigation
  */
 export default function App() {
+  const [showSplash, setShowSplash] = useState(true);
   const initializeExpenses = useExpenseStore((state) => state.initialize);
   const initializeTheme = useThemeStore((state) => state.initialize);
   const initializeCurrency = useCurrencyStore((state) => state.initialize);
@@ -28,6 +30,15 @@ export default function App() {
     };
     init();
   }, []);
+
+  if (showSplash) {
+    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <StatusBar style="light" />
+        <SplashScreen onFinish={() => setShowSplash(false)} />
+      </GestureHandlerRootView>
+    );
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

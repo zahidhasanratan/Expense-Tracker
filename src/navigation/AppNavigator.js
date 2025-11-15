@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeStore } from '../store/useThemeStore';
+import Sidebar from '../components/Sidebar';
 
 // Screens
 import HomeScreen from '../screens/HomeScreen';
@@ -12,157 +13,112 @@ import EditExpenseScreen from '../screens/EditExpenseScreen';
 import ReportsScreen from '../screens/ReportsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
-const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
 /**
- * Home Stack Navigator
- * Contains Home screen and Add/Edit expense screens
- */
-const HomeStack = () => {
-  const theme = useThemeStore((state) => state.theme);
-  const isDark = theme === 'dark';
-
-  return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: isDark ? '#1E1E1E' : '#4CAF50',
-        },
-        headerTintColor: '#FFFFFF',
-        headerTitleStyle: {
-          fontWeight: '700',
-        },
-      }}
-    >
-      <Stack.Screen
-        name="HomeMain"
-        component={HomeScreen}
-        options={{ title: 'Dashboard' }}
-      />
-      <Stack.Screen
-        name="AddExpense"
-        component={AddExpenseScreen}
-        options={{ title: 'Add Expense' }}
-      />
-      <Stack.Screen
-        name="EditExpense"
-        component={EditExpenseScreen}
-        options={{ title: 'Edit Expense' }}
-      />
-    </Stack.Navigator>
-  );
-};
-
-/**
- * Reports Stack Navigator
- */
-const ReportsStack = () => {
-  const theme = useThemeStore((state) => state.theme);
-  const isDark = theme === 'dark';
-
-  return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: isDark ? '#1E1E1E' : '#4CAF50',
-        },
-        headerTintColor: '#FFFFFF',
-        headerTitleStyle: {
-          fontWeight: '700',
-        },
-      }}
-    >
-      <Stack.Screen
-        name="ReportsMain"
-        component={ReportsScreen}
-        options={{ title: 'Monthly Reports' }}
-      />
-    </Stack.Navigator>
-  );
-};
-
-/**
- * Settings Stack Navigator
- */
-const SettingsStack = () => {
-  const theme = useThemeStore((state) => state.theme);
-  const isDark = theme === 'dark';
-
-  return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: isDark ? '#1E1E1E' : '#4CAF50',
-        },
-        headerTintColor: '#FFFFFF',
-        headerTitleStyle: {
-          fontWeight: '700',
-        },
-      }}
-    >
-      <Stack.Screen
-        name="SettingsMain"
-        component={SettingsScreen}
-        options={{ title: 'Settings' }}
-      />
-    </Stack.Navigator>
-  );
-};
-
-/**
  * Main App Navigator
- * Bottom tab navigation with stack navigators
+ * Stack navigation with header menu button
  */
 const AppNavigator = () => {
   const theme = useThemeStore((state) => state.theme);
+  const [sidebarVisible, setSidebarVisible] = useState(false);
+  const [currentRoute, setCurrentRoute] = useState('Home');
   const isDark = theme === 'dark';
 
+  const navigationRef = React.useRef();
+
+  const getHeaderTitle = (routeName) => {
+    switch (routeName) {
+      case 'Home':
+        return 'Dashboard';
+      case 'Reports':
+        return 'Monthly Reports';
+      case 'Settings':
+        return 'Settings';
+      case 'AddExpense':
+        return 'Add Expense';
+      case 'EditExpense':
+        return 'Edit Expense';
+      default:
+        return 'Expense Tracker';
+    }
+  };
+
   return (
-    <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={({ route }) => ({
-          tabBarIcon: ({ focused, color, size }) => {
-            let iconName;
-
-            if (route.name === 'Home') {
-              iconName = focused ? 'home' : 'home-outline';
-            } else if (route.name === 'Reports') {
-              iconName = focused ? 'bar-chart' : 'bar-chart-outline';
-            } else if (route.name === 'Settings') {
-              iconName = focused ? 'settings' : 'settings-outline';
-            }
-
-            return <Ionicons name={iconName} size={size} color={color} />;
-          },
-          tabBarActiveTintColor: '#4CAF50',
-          tabBarInactiveTintColor: isDark ? '#757575' : '#9E9E9E',
-          tabBarStyle: {
-            backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
-            borderTopColor: isDark ? '#3C3C3C' : '#E0E0E0',
-            paddingBottom: 8,
-            paddingTop: 8,
-            height: 60,
-          },
-          headerShown: false,
-        })}
+    <NavigationContainer
+      ref={navigationRef}
+      onStateChange={() => {
+        const route = navigationRef.current?.getCurrentRoute();
+        if (route) {
+          const routeName = route.name === 'HomeMain' ? 'Home' : 
+                          route.name === 'ReportsMain' ? 'Reports' :
+                          route.name === 'SettingsMain' ? 'Settings' : route.name;
+          setCurrentRoute(routeName);
+        }
+      }}
+    >
+      <Stack.Navigator
+        screenOptions={({ navigation, route }) => {
+          const routeName = route.name === 'HomeMain' ? 'Home' : 
+                          route.name === 'ReportsMain' ? 'Reports' :
+                          route.name === 'SettingsMain' ? 'Settings' : route.name;
+          const showMenu = ['HomeMain', 'ReportsMain', 'SettingsMain'].includes(route.name);
+          
+          return {
+            headerStyle: {
+              backgroundColor: isDark ? '#1E1E1E' : '#4CAF50',
+            },
+            headerTintColor: '#FFFFFF',
+            headerTitleStyle: {
+              fontWeight: '700',
+            },
+            headerLeft: showMenu ? () => (
+              <TouchableOpacity
+                onPress={() => setSidebarVisible(true)}
+                style={{ marginLeft: 16, padding: 8 }}
+              >
+                <Ionicons name="menu" size={28} color="#FFFFFF" />
+              </TouchableOpacity>
+            ) : () => (
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={{ marginLeft: 16, padding: 8 }}
+              >
+                <Ionicons name="arrow-back" size={28} color="#FFFFFF" />
+              </TouchableOpacity>
+            ),
+            title: getHeaderTitle(routeName),
+          };
+        }}
       >
-        <Tab.Screen
-          name="Home"
-          component={HomeStack}
-          options={{ title: 'Home' }}
+        <Stack.Screen
+          name="HomeMain"
+          component={HomeScreen}
         />
-        <Tab.Screen
-          name="Reports"
-          component={ReportsStack}
-          options={{ title: 'Reports' }}
+        <Stack.Screen
+          name="AddExpense"
+          component={AddExpenseScreen}
         />
-        <Tab.Screen
-          name="Settings"
-          component={SettingsStack}
-          options={{ title: 'Settings' }}
+        <Stack.Screen
+          name="EditExpense"
+          component={EditExpenseScreen}
         />
-      </Tab.Navigator>
+        <Stack.Screen
+          name="ReportsMain"
+          component={ReportsScreen}
+        />
+        <Stack.Screen
+          name="SettingsMain"
+          component={SettingsScreen}
+        />
+      </Stack.Navigator>
+
+      <Sidebar
+        visible={sidebarVisible}
+        onClose={() => setSidebarVisible(false)}
+        navigation={navigationRef.current}
+        currentRoute={currentRoute}
+      />
     </NavigationContainer>
   );
 };

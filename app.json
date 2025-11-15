@@ -23,13 +23,21 @@
       "package": "com.expensetracker.app",
       "permissions": [
         "WRITE_EXTERNAL_STORAGE",
-        "READ_EXTERNAL_STORAGE"
+        "READ_EXTERNAL_STORAGE",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.INTERNET"
       ]
     },
     "web": {},
     "plugins": [
       "expo-file-system",
       "expo-asset"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "43c7a976-0103-4814-b5d2-2900b66f417f"
+      }
+    }
   }
 }
