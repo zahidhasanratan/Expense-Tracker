@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeStore } from '../store/useThemeStore';
 import Sidebar from '../components/Sidebar';
@@ -10,9 +11,11 @@ import HamburgerMenu from '../components/HamburgerMenu';
 // Screens
 import HomeScreen from '../screens/HomeScreen';
 import AddExpenseScreen from '../screens/AddExpenseScreen';
+import AddTransactionScreen from '../screens/AddTransactionScreen';
 import EditExpenseScreen from '../screens/EditExpenseScreen';
 import ReportsScreen from '../screens/ReportsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import BudgetScreen from '../screens/BudgetScreen';
 
 const Stack = createStackNavigator();
 
@@ -36,8 +39,12 @@ const AppNavigator = () => {
         return 'Monthly Reports';
       case 'Settings':
         return 'Settings';
+      case 'Budget':
+        return 'Budget';
       case 'AddExpense':
         return 'Add Expense';
+      case 'AddTransaction':
+        return 'Add Transaction';
       case 'EditExpense':
         return 'Edit Expense';
       default:
@@ -67,11 +74,27 @@ const AppNavigator = () => {
           
           return {
             headerStyle: {
-              backgroundColor: isDark ? '#1E1E1E' : '#4CAF50',
+              backgroundColor: 'transparent',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
             },
+            headerBackground: () => (
+              <LinearGradient
+                colors={isDark 
+                  ? ['#1a1a2e', '#16213e', '#0f3460']
+                  : ['#4CAF50', '#45a049', '#66BB6A']
+                }
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={{ flex: 1 }}
+              />
+            ),
             headerTintColor: '#FFFFFF',
             headerTitleStyle: {
-              fontWeight: '700',
+              fontWeight: '800',
+              fontSize: 20,
+              letterSpacing: 0.5,
             },
             headerLeft: showMenu ? () => (
               <HamburgerMenu
@@ -99,6 +122,10 @@ const AppNavigator = () => {
           component={AddExpenseScreen}
         />
         <Stack.Screen
+          name="AddTransaction"
+          component={AddTransactionScreen}
+        />
+        <Stack.Screen
           name="EditExpense"
           component={EditExpenseScreen}
         />
@@ -109,6 +136,10 @@ const AppNavigator = () => {
         <Stack.Screen
           name="SettingsMain"
           component={SettingsScreen}
+        />
+        <Stack.Screen
+          name="BudgetMain"
+          component={BudgetScreen}
         />
       </Stack.Navigator>
 

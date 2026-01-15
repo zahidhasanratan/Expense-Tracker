@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { formatCurrency, formatDate, formatDateTime } from '../utils/format';
 import { getCategoryColor, getCategoryIcon } from '../utils/categories';
 import { useThemeStore } from '../store/useThemeStore';
@@ -19,15 +20,34 @@ const ExpenseCard = ({ expense, onPress, onDelete }) => {
 
   const styles = getStyles(isDark, categoryColor);
 
+  // Generate gradient colors for icon
+  const getGradientColors = (baseColor) => {
+    const colorMap = {
+      '#FF6B6B': ['#FF8A80', '#FF6B6B', '#EF5350'],
+      '#4ECDC4': ['#80DEEA', '#4ECDC4', '#26C6DA'],
+      '#45B7D1': ['#64B5F6', '#45B7D1', '#42A5F5'],
+      '#FFA07A': ['#FFB74D', '#FFA07A', '#FF9800'],
+      '#98D8C8': ['#A5D6A7', '#98D8C8', '#81C784'],
+    };
+    return colorMap[baseColor] || ['#66BB6A', '#4CAF50', '#43A047'];
+  };
+
+  const gradientColors = getGradientColors(categoryColor);
+
   return (
     <TouchableOpacity
       style={styles.card}
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <View style={styles.iconContainer}>
-        <Ionicons name={categoryIcon} size={24} color="#fff" />
-      </View>
+      <LinearGradient
+        colors={gradientColors}
+        style={styles.iconContainer}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <Ionicons name={categoryIcon} size={26} color="#fff" />
+      </LinearGradient>
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title} numberOfLines={1}>
@@ -70,24 +90,32 @@ const getStyles = (isDark, categoryColor) =>
   StyleSheet.create({
     card: {
       flexDirection: 'row',
-      backgroundColor: isDark ? '#2C2C2C' : '#FFFFFF',
-      borderRadius: 12,
-      padding: 12,
+      backgroundColor: isDark 
+        ? 'rgba(44, 44, 44, 0.9)' 
+        : 'rgba(255, 255, 255, 0.95)',
+      borderRadius: 16,
+      padding: 16,
       marginBottom: 12,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
+      shadowColor: categoryColor,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 5,
+      borderWidth: 1,
+      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
     },
     iconContainer: {
-      width: 48,
-      height: 48,
-      borderRadius: 24,
-      backgroundColor: categoryColor,
+      width: 56,
+      height: 56,
+      borderRadius: 28,
       justifyContent: 'center',
       alignItems: 'center',
-      marginRight: 12,
+      marginRight: 16,
+      shadowColor: categoryColor,
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.4,
+      shadowRadius: 6,
+      elevation: 4,
     },
     content: {
       flex: 1,
@@ -106,9 +134,10 @@ const getStyles = (isDark, categoryColor) =>
       marginRight: 8,
     },
     amount: {
-      fontSize: 16,
-      fontWeight: '700',
+      fontSize: 18,
+      fontWeight: '800',
       color: '#4CAF50',
+      letterSpacing: 0.3,
     },
     footer: {
       flexDirection: 'row',
@@ -119,9 +148,14 @@ const getStyles = (isDark, categoryColor) =>
       flexDirection: 'row',
     },
     categoryBadge: {
-      paddingHorizontal: 8,
-      paddingVertical: 4,
-      borderRadius: 12,
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      borderRadius: 14,
+      shadowColor: categoryColor,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+      elevation: 3,
     },
     categoryText: {
       fontSize: 12,

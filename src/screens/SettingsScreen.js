@@ -9,6 +9,8 @@ import {
   Alert,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { Ionicons } from '@expo/vector-icons';
@@ -102,12 +104,19 @@ const SettingsScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <LinearGradient
+        colors={isDark 
+          ? ['#1a1a2e', '#16213e', '#0f3460'] 
+          : ['#E8F5E9', '#C8E6C9', '#A5D6A7']
+        }
+        style={styles.gradient}
       >
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
         {/* App Info */}
         <View style={styles.section}>
           <View style={styles.appInfo}>
@@ -249,20 +258,21 @@ const SettingsScreen = () => {
             Built with Expo & React Native
           </Text>
         </View>
-      </ScrollView>
+        </ScrollView>
 
-      {/* Currency Selector Modal */}
-      <CurrencySelector
-        visible={showCurrencyModal}
-        onClose={() => setShowCurrencyModal(false)}
-      />
+        {/* Currency Selector Modal */}
+        <CurrencySelector
+          visible={showCurrencyModal}
+          onClose={() => setShowCurrencyModal(false)}
+        />
 
-      {/* Category Manager Modal */}
-      <CategoryManager
-        visible={showCategoryModal}
-        onClose={() => setShowCategoryModal(false)}
-      />
-    </View>
+        {/* Category Manager Modal */}
+        <CategoryManager
+          visible={showCategoryModal}
+          onClose={() => setShowCategoryModal(false)}
+        />
+      </LinearGradient>
+    </SafeAreaView>
   );
 };
 
@@ -270,7 +280,9 @@ const getStyles = (isDark) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: isDark ? '#121212' : '#F1F8E9',
+    },
+    gradient: {
+      flex: 1,
     },
     scrollView: {
       flex: 1,
@@ -284,14 +296,16 @@ const getStyles = (isDark) =>
     },
     appInfo: {
       alignItems: 'center',
-      backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
-      borderRadius: 12,
-      padding: 24,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
+      backgroundColor: isDark ? 'rgba(30, 30, 30, 0.9)' : 'rgba(255, 255, 255, 0.95)',
+      borderRadius: 16,
+      padding: 28,
+      shadowColor: '#4CAF50',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 5,
+      borderWidth: 1,
+      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(76, 175, 80, 0.2)',
     },
     appName: {
       fontSize: 24,
@@ -316,15 +330,17 @@ const getStyles = (isDark) =>
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
-      borderRadius: 12,
-      padding: 16,
+      backgroundColor: isDark ? 'rgba(30, 30, 30, 0.9)' : 'rgba(255, 255, 255, 0.95)',
+      borderRadius: 16,
+      padding: 18,
       marginBottom: 12,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
+      shadowColor: isDark ? '#000' : '#4CAF50',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 6,
+      elevation: 4,
+      borderWidth: 1,
+      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(76, 175, 80, 0.15)',
     },
     settingLeft: {
       flexDirection: 'row',
@@ -350,14 +366,16 @@ const getStyles = (isDark) =>
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
-      borderRadius: 12,
-      padding: 16,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
+      backgroundColor: isDark ? 'rgba(30, 30, 30, 0.9)' : 'rgba(255, 255, 255, 0.95)',
+      borderRadius: 16,
+      padding: 18,
+      shadowColor: '#4CAF50',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 5,
+      borderWidth: 1,
+      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(76, 175, 80, 0.2)',
     },
     statLabel: {
       fontSize: 16,

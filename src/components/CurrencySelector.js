@@ -1,21 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Modal,
   TouchableOpacity,
-  ScrollView,
+  FlatList,
   TextInput,
+  SafeAreaView,
+  Dimensions,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useCurrencyStore } from '../store/useCurrencyStore';
 import { useThemeStore } from '../store/useThemeStore';
 import { CURRENCIES } from '../utils/currencies';
 
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+
 /**
  * CurrencySelector Component
- * Modal for selecting currency
+ * Modal for selecting currency with working search
  */
 const CurrencySelector = ({ visible, onClose }) => {
   const theme = useThemeStore((state) => state.theme);
@@ -26,18 +31,70 @@ const CurrencySelector = ({ visible, onClose }) => {
 
   const styles = getStyles(isDark);
 
+  // Reset search when modal closes
+  useEffect(() => {
+    if (!visible) {
+      setSearchQuery('');
+    }
+  }, [visible]);
+
   // Filter currencies based on search
   const filteredCurrencies = React.useMemo(() => {
-    if (!searchQuery.trim()) {
+    // If no search query, return all currencies
+    if (!searchQuery || searchQuery.trim().length === 0) {
       return CURRENCIES;
     }
+    
     const query = searchQuery.toLowerCase().trim();
-    return CURRENCIES.filter(
-      (currency) =>
-        currency.name.toLowerCase().includes(query) ||
-        currency.country.toLowerCase().includes(query) ||
-        currency.code.toLowerCase().includes(query)
-    );
+    
+    // Filter currencies with comprehensive matching
+    return CURRENCIES.filter((currency) => {
+      try {
+        const name = String(currency.name || '').toLowerCase();
+        const country = String(currency.country || '').toLowerCase();
+        const code = String(currency.code || '').toLowerCase();
+        const symbol = String(currency.symbol || '').toLowerCase();
+        
+        // Direct substring matches
+        if (name.includes(query)) return true;
+        if (country.includes(query)) return true;
+        if (code.includes(query)) return true;
+        if (symbol.includes(query)) return true;
+        
+        // Word-based matching
+        const nameWords = name.split(/\s+/).filter(w => w.length > 0);
+        const countryWords = country.split(/\s+/).filter(w => w.length > 0);
+        
+        for (const word of nameWords) {
+          if (word.startsWith(query) || word.includes(query)) return true;
+        }
+        for (const word of countryWords) {
+          if (word.startsWith(query) || word.includes(query)) return true;
+        }
+        
+        // Match without spaces
+        const countryNoSpaces = country.replace(/\s+/g, '');
+        const queryNoSpaces = query.replace(/\s+/g, '');
+        if (countryNoSpaces.includes(queryNoSpaces)) return true;
+        
+        // Match simplified country name
+        const countrySimplified = country
+          .replace(/\b(united|republic|kingdom|states|arab|emirates|of|the)\b/g, '')
+          .trim();
+        if (countrySimplified.length > 0 && countrySimplified.includes(query)) return true;
+        
+        // Match initials
+        if (countryWords.length > 0) {
+          const countryInitials = countryWords.map(w => w[0] || '').join('');
+          if (countryInitials.includes(query)) return true;
+        }
+        
+        return false;
+      } catch (error) {
+        console.error('Error filtering currency:', error);
+        return true;
+      }
+    });
   }, [searchQuery]);
 
   const handleSelectCurrency = (code) => {
@@ -52,8 +109,9 @@ const CurrencySelector = ({ visible, onClose }) => {
       transparent={true}
       onRequestClose={onClose}
     >
-      <View style={styles.modalOverlay}>
+      <SafeAreaView style={styles.modalOverlay} edges={['bottom']}>
         <View style={styles.modalContent}>
+          {/* Header */}
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Select Currency</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
@@ -71,7 +129,7 @@ const CurrencySelector = ({ visible, onClose }) => {
             />
             <TextInput
               style={styles.searchInput}
-              placeholder="Search currency or country..."
+              placeholder="Search by country, currency, or code..."
               placeholderTextColor={isDark ? '#666666' : '#999999'}
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -79,10 +137,11 @@ const CurrencySelector = ({ visible, onClose }) => {
               autoCorrect={false}
               returnKeyType="search"
             />
-            {searchQuery.length > 0 && (
+            {searchQuery && searchQuery.length > 0 && (
               <TouchableOpacity
                 onPress={() => setSearchQuery('')}
                 style={styles.clearButton}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
                 <Ionicons
                   name="close-circle"
@@ -93,16 +152,27 @@ const CurrencySelector = ({ visible, onClose }) => {
             )}
           </View>
 
-          <ScrollView 
+          {/* Results count */}
+          {searchQuery && searchQuery.trim().length > 0 && (
+            <View style={styles.resultsCount}>
+              <Text style={styles.resultsCountText}>
+                {filteredCurrencies.length} {filteredCurrencies.length === 1 ? 'result' : 'results'} found
+              </Text>
+            </View>
+          )}
+
+          {/* Currency List */}
+          <FlatList
+            data={filteredCurrencies}
+            keyExtractor={(item) => item.code}
             style={styles.currencyList}
+            contentContainerStyle={styles.currencyListContent}
             keyboardShouldPersistTaps="handled"
-          >
-            {filteredCurrencies.length > 0 ? (
-              filteredCurrencies.map((currency) => {
+            showsVerticalScrollIndicator={true}
+            renderItem={({ item: currency }) => {
               const isSelected = currencyCode === currency.code;
               return (
                 <TouchableOpacity
-                  key={currency.code}
                   style={[
                     styles.currencyItem,
                     isSelected && styles.selectedCurrencyItem,
@@ -131,23 +201,25 @@ const CurrencySelector = ({ visible, onClose }) => {
                   </View>
                 </TouchableOpacity>
               );
-            })
-            ) : (
-              <View style={styles.emptyContainer}>
-                <Ionicons
-                  name="search-outline"
-                  size={48}
-                  color={isDark ? '#555555' : '#CCCCCC'}
-                />
-                <Text style={styles.emptyText}>No currencies found</Text>
-                <Text style={styles.emptySubtext}>
-                  Try searching with a different term
-                </Text>
-              </View>
-            )}
-          </ScrollView>
+            }}
+            ListEmptyComponent={
+              searchQuery && searchQuery.trim().length > 0 ? (
+                <View style={styles.emptyContainer}>
+                  <Ionicons
+                    name="search-outline"
+                    size={48}
+                    color={isDark ? '#555555' : '#CCCCCC'}
+                  />
+                  <Text style={styles.emptyText}>No currencies found</Text>
+                  <Text style={styles.emptySubtext}>
+                    Try searching with a different term
+                  </Text>
+                </View>
+              ) : null
+            }
+          />
         </View>
-      </View>
+      </SafeAreaView>
     </Modal>
   );
 };
@@ -161,10 +233,14 @@ const getStyles = (isDark) =>
     },
     modalContent: {
       backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
-      maxHeight: '80%',
-      paddingBottom: 20,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      height: SCREEN_HEIGHT * 0.85,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: -4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 12,
+      elevation: 10,
     },
     modalHeader: {
       flexDirection: 'row',
@@ -185,11 +261,14 @@ const getStyles = (isDark) =>
     searchContainer: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: isDark ? '#2C2C2C' : '#F5F5F5',
+      backgroundColor: isDark ? 'rgba(44, 44, 44, 0.9)' : 'rgba(245, 245, 245, 0.95)',
       margin: 16,
-      marginBottom: 8,
-      borderRadius: 12,
-      paddingHorizontal: 12,
+      marginBottom: 12,
+      borderRadius: 14,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderWidth: 1,
+      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
     },
     searchIcon: {
       marginRight: 8,
@@ -198,24 +277,42 @@ const getStyles = (isDark) =>
       flex: 1,
       fontSize: 16,
       color: isDark ? '#FFFFFF' : '#212121',
-      paddingVertical: 12,
+      paddingVertical: 8,
+      paddingHorizontal: 8,
     },
     clearButton: {
       padding: 4,
+      marginLeft: 8,
+    },
+    resultsCount: {
+      paddingHorizontal: 20,
+      paddingVertical: 8,
+      borderBottomWidth: 1,
+      borderBottomColor: isDark ? 'rgba(60, 60, 60, 0.5)' : 'rgba(224, 224, 224, 0.5)',
+    },
+    resultsCountText: {
+      fontSize: 12,
+      color: isDark ? '#B0B0B0' : '#757575',
+      fontWeight: '500',
     },
     currencyList: {
       flex: 1,
+    },
+    currencyListContent: {
+      paddingBottom: 20,
     },
     currencyItem: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      padding: 16,
+      padding: 18,
       borderBottomWidth: 1,
-      borderBottomColor: isDark ? '#3C3C3C' : '#E0E0E0',
+      borderBottomColor: isDark ? 'rgba(60, 60, 60, 0.5)' : 'rgba(224, 224, 224, 0.5)',
     },
     selectedCurrencyItem: {
-      backgroundColor: isDark ? '#2C2C2C' : '#F1F8E9',
+      backgroundColor: isDark ? 'rgba(76, 175, 80, 0.15)' : 'rgba(76, 175, 80, 0.1)',
+      borderLeftWidth: 3,
+      borderLeftColor: '#4CAF50',
     },
     currencyInfo: {
       flexDirection: 'row',
@@ -261,7 +358,8 @@ const getStyles = (isDark) =>
     emptyContainer: {
       alignItems: 'center',
       justifyContent: 'center',
-      paddingVertical: 40,
+      paddingVertical: 60,
+      paddingHorizontal: 20,
     },
     emptyText: {
       fontSize: 18,

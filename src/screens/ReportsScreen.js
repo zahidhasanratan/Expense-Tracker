@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { LineChart } from 'react-native-chart-kit';
 import { Ionicons } from '@expo/vector-icons';
 import { useExpenseStore } from '../store/useExpenseStore';
@@ -101,12 +103,19 @@ const ReportsScreen = () => {
     .sort((a, b) => b.amount - a.amount);
 
   return (
-    <View style={styles.container}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <LinearGradient
+        colors={isDark 
+          ? ['#1a1a2e', '#16213e', '#0f3460'] 
+          : ['#E8F5E9', '#C8E6C9', '#A5D6A7']
+        }
+        style={styles.gradient}
       >
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
         {/* Month Selector */}
         <View style={styles.monthSelector}>
           <TouchableOpacity
@@ -207,8 +216,9 @@ const ReportsScreen = () => {
             </View>
           )}
         </View>
-      </ScrollView>
-    </View>
+        </ScrollView>
+      </LinearGradient>
+    </SafeAreaView>
   );
 };
 
@@ -216,7 +226,9 @@ const getStyles = (isDark) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: isDark ? '#121212' : '#F1F8E9',
+    },
+    gradient: {
+      flex: 1,
     },
     scrollView: {
       flex: 1,
@@ -229,15 +241,17 @@ const getStyles = (isDark) =>
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
-      borderRadius: 12,
-      padding: 16,
+      backgroundColor: isDark ? 'rgba(30, 30, 30, 0.9)' : 'rgba(255, 255, 255, 0.95)',
+      borderRadius: 16,
+      padding: 18,
       marginBottom: 20,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
+      shadowColor: isDark ? '#000' : '#4CAF50',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 5,
+      borderWidth: 1,
+      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(76, 175, 80, 0.2)',
     },
     monthButton: {
       padding: 8,
@@ -248,16 +262,18 @@ const getStyles = (isDark) =>
       color: isDark ? '#FFFFFF' : '#212121',
     },
     totalContainer: {
-      backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
-      borderRadius: 12,
-      padding: 24,
+      backgroundColor: isDark ? 'rgba(30, 30, 30, 0.9)' : 'rgba(255, 255, 255, 0.95)',
+      borderRadius: 16,
+      padding: 28,
       marginBottom: 20,
       alignItems: 'center',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
+      shadowColor: '#4CAF50',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 5,
+      borderWidth: 1,
+      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(76, 175, 80, 0.2)',
     },
     totalLabel: {
       fontSize: 14,
@@ -271,15 +287,17 @@ const getStyles = (isDark) =>
       color: '#4CAF50',
     },
     chartContainer: {
-      backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
-      borderRadius: 12,
-      padding: 16,
+      backgroundColor: isDark ? 'rgba(30, 30, 30, 0.9)' : 'rgba(255, 255, 255, 0.95)',
+      borderRadius: 16,
+      padding: 20,
       marginBottom: 20,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
+      shadowColor: isDark ? '#000' : '#4CAF50',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 5,
+      borderWidth: 1,
+      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(76, 175, 80, 0.2)',
     },
     chartTitle: {
       fontSize: 18,
@@ -288,14 +306,16 @@ const getStyles = (isDark) =>
       marginBottom: 16,
     },
     categoryContainer: {
-      backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
-      borderRadius: 12,
-      padding: 16,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
+      backgroundColor: isDark ? 'rgba(30, 30, 30, 0.9)' : 'rgba(255, 255, 255, 0.95)',
+      borderRadius: 16,
+      padding: 20,
+      shadowColor: isDark ? '#000' : '#4CAF50',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 5,
+      borderWidth: 1,
+      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(76, 175, 80, 0.2)',
     },
     categoryRow: {
       flexDirection: 'row',

@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import DatePicker from 'react-native-date-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useExpenseStore } from '../store/useExpenseStore';
@@ -112,12 +114,19 @@ const EditExpenseScreen = ({ route, navigation }) => {
   }
 
   return (
-    <View style={styles.container}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <LinearGradient
+        colors={isDark 
+          ? ['#1a1a2e', '#16213e', '#0f3460'] 
+          : ['#E8F5E9', '#C8E6C9', '#A5D6A7']
+        }
+        style={styles.gradient}
       >
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
         {/* Title Input */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Title *</Text>
@@ -209,11 +218,17 @@ const EditExpenseScreen = ({ route, navigation }) => {
             onPress={handleSave}
             activeOpacity={0.8}
           >
-            <Text style={styles.saveButtonText}>Save Changes</Text>
+            <LinearGradient
+              colors={['#4CAF50', '#45a049', '#66BB6A']}
+              style={styles.saveButtonGradient}
+            >
+              <Text style={styles.saveButtonText}>Save Changes</Text>
+            </LinearGradient>
           </TouchableOpacity>
         </View>
-      </ScrollView>
-    </View>
+        </ScrollView>
+      </LinearGradient>
+    </SafeAreaView>
   );
 };
 
@@ -221,7 +236,9 @@ const getStyles = (isDark) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: isDark ? '#121212' : '#F1F8E9',
+    },
+    gradient: {
+      flex: 1,
     },
     scrollView: {
       flex: 1,
@@ -240,13 +257,18 @@ const getStyles = (isDark) =>
       marginBottom: 8,
     },
     input: {
-      backgroundColor: isDark ? '#2C2C2C' : '#FFFFFF',
-      borderRadius: 12,
+      backgroundColor: isDark ? 'rgba(44, 44, 44, 0.9)' : 'rgba(255, 255, 255, 0.95)',
+      borderRadius: 14,
       padding: 16,
       fontSize: 16,
       color: isDark ? '#FFFFFF' : '#212121',
       borderWidth: 1,
-      borderColor: isDark ? '#3C3C3C' : '#E0E0E0',
+      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(76, 175, 80, 0.2)',
+      shadowColor: isDark ? '#000' : '#4CAF50',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
     },
     textArea: {
       height: 100,
@@ -255,11 +277,16 @@ const getStyles = (isDark) =>
     dateButton: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: isDark ? '#2C2C2C' : '#FFFFFF',
-      borderRadius: 12,
+      backgroundColor: isDark ? 'rgba(44, 44, 44, 0.9)' : 'rgba(255, 255, 255, 0.95)',
+      borderRadius: 14,
       padding: 16,
       borderWidth: 1,
-      borderColor: isDark ? '#3C3C3C' : '#E0E0E0',
+      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(76, 175, 80, 0.2)',
+      shadowColor: isDark ? '#000' : '#4CAF50',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
     },
     dateText: {
       fontSize: 16,
@@ -273,15 +300,17 @@ const getStyles = (isDark) =>
     },
     saveButton: {
       flex: 1,
-      backgroundColor: '#4CAF50',
-      borderRadius: 12,
-      padding: 16,
+      borderRadius: 16,
+      shadowColor: '#4CAF50',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 6,
+    },
+    saveButtonGradient: {
+      borderRadius: 16,
+      padding: 18,
       alignItems: 'center',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.2,
-      shadowRadius: 4,
-      elevation: 4,
     },
     saveButtonText: {
       fontSize: 18,

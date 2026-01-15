@@ -10,6 +10,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { PieChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useExpenseStore } from '../store/useExpenseStore';
 import { useThemeStore } from '../store/useThemeStore';
 import SummaryBox from '../components/SummaryBox';
@@ -114,12 +116,19 @@ const HomeScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <LinearGradient
+        colors={isDark 
+          ? ['#1a1a2e', '#16213e', '#0f3460'] 
+          : ['#E8F5E9', '#C8E6C9', '#A5D6A7']
+        }
+        style={styles.gradient}
       >
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
         {/* Summary Boxes */}
         <View style={styles.summaryContainer}>
           <SummaryBox
@@ -208,17 +217,40 @@ const HomeScreen = ({ navigation }) => {
             </View>
           )}
         </View>
-      </ScrollView>
+        </ScrollView>
 
-      {/* Floating Action Button */}
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => navigation.navigate('AddExpense')}
-        activeOpacity={0.8}
-      >
-        <Ionicons name="add" size={32} color="#FFFFFF" />
-      </TouchableOpacity>
-    </View>
+        {/* Floating Action Buttons */}
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={() => navigation.navigate('AddTransaction', { type: 'expense' })}
+          activeOpacity={0.8}
+        >
+          <LinearGradient
+            colors={['#4CAF50', '#45a049', '#66BB6A']}
+            style={styles.fabGradient}
+          >
+            <Ionicons name="add" size={32} color="#FFFFFF" />
+          </LinearGradient>
+        </TouchableOpacity>
+        
+        {/* Quick Add Button (1-tap expense) */}
+        <TouchableOpacity
+          style={styles.quickFab}
+          onPress={() => {
+            // Quick add - navigate to AddTransaction with quick mode
+            navigation.navigate('AddTransaction', { type: 'expense', quick: true });
+          }}
+          activeOpacity={0.8}
+        >
+          <LinearGradient
+            colors={['#FF6B6B', '#FF5252']}
+            style={styles.quickFabGradient}
+          >
+            <Ionicons name="flash" size={24} color="#FFFFFF" />
+          </LinearGradient>
+        </TouchableOpacity>
+      </LinearGradient>
+    </SafeAreaView>
   );
 };
 
@@ -226,7 +258,9 @@ const getStyles = (isDark) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: isDark ? '#121212' : '#F1F8E9',
+    },
+    gradient: {
+      flex: 1,
     },
     scrollView: {
       flex: 1,
@@ -239,15 +273,17 @@ const getStyles = (isDark) =>
       marginBottom: 20,
     },
     chartContainer: {
-      backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
-      borderRadius: 12,
-      padding: 16,
+      backgroundColor: isDark ? 'rgba(30, 30, 30, 0.9)' : 'rgba(255, 255, 255, 0.95)',
+      borderRadius: 16,
+      padding: 20,
       marginBottom: 20,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
+      shadowColor: isDark ? '#000' : '#4CAF50',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 5,
+      borderWidth: 1,
+      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(76, 175, 80, 0.2)',
     },
     sectionTitle: {
       fontSize: 18,
@@ -290,17 +326,41 @@ const getStyles = (isDark) =>
       position: 'absolute',
       right: 20,
       bottom: 30,
+      width: 64,
+      height: 64,
+      borderRadius: 32,
+      shadowColor: '#4CAF50',
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.4,
+      shadowRadius: 12,
+      elevation: 10,
+    },
+    fabGradient: {
+      width: 64,
+      height: 64,
+      borderRadius: 32,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    quickFab: {
+      position: 'absolute',
+      left: 20,
+      bottom: 30,
       width: 56,
       height: 56,
       borderRadius: 28,
-      backgroundColor: '#4CAF50',
-      justifyContent: 'center',
-      alignItems: 'center',
-      shadowColor: '#000',
+      shadowColor: '#FF6B6B',
       shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.3,
+      shadowOpacity: 0.4,
       shadowRadius: 8,
       elevation: 8,
+    },
+    quickFabGradient: {
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
   });
 

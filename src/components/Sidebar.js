@@ -77,6 +77,14 @@ const Sidebar = ({ visible, onClose, navigation, currentRoute }) => {
       description: 'Overview & Summary',
     },
     {
+      name: 'Budget',
+      route: 'Budget',
+      icon: 'wallet',
+      activeIcon: 'wallet',
+      color: '#9C27B0',
+      description: 'Manage Budgets',
+    },
+    {
       name: 'Reports',
       route: 'Reports',
       icon: 'bar-chart',
@@ -98,6 +106,7 @@ const Sidebar = ({ visible, onClose, navigation, currentRoute }) => {
     if (navigation) {
       const routeMap = {
         'Home': 'HomeMain',
+        'Budget': 'BudgetMain',
         'Reports': 'ReportsMain',
         'Settings': 'SettingsMain',
       };
