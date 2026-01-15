@@ -16,11 +16,18 @@ export const useExpenseStore = create((set, get) => ({
     set({ isLoading: true });
     try {
       const expenses = await getExpenses();
-      const categories = await getCategories();
+      let categories = await getCategories();
+      // Ensure categories is always an array
+      if (!categories || !Array.isArray(categories) || categories.length === 0) {
+        categories = ['Food', 'Transport', 'Bills', 'Shopping', 'Others'];
+        await saveCategories(categories);
+      }
       set({ expenses, categories, isLoading: false });
     } catch (error) {
       console.error('Error initializing store:', error);
-      set({ isLoading: false });
+      // Set default categories on error
+      const defaultCategories = ['Food', 'Transport', 'Bills', 'Shopping', 'Others'];
+      set({ expenses: [], categories: defaultCategories, isLoading: false });
     }
   },
 

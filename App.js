@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigator from './src/navigation/AppNavigator';
 import SplashScreen from './src/screens/SplashScreen';
 import { useExpenseStore } from './src/store/useExpenseStore';
@@ -33,18 +34,22 @@ export default function App() {
 
   if (showSplash) {
     return (
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <StatusBar style="light" />
-        <SplashScreen onFinish={() => setShowSplash(false)} />
-      </GestureHandlerRootView>
+      <SafeAreaProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <StatusBar style="light" />
+          <SplashScreen onFinish={() => setShowSplash(false)} />
+        </GestureHandlerRootView>
+      </SafeAreaProvider>
     );
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
-      <AppNavigator />
-    </GestureHandlerRootView>
+    <SafeAreaProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
+        <AppNavigator />
+      </GestureHandlerRootView>
+    </SafeAreaProvider>
   );
 }
 

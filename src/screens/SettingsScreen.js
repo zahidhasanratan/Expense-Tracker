@@ -104,7 +104,7 @@ const SettingsScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <LinearGradient
         colors={isDark 
           ? ['#1a1a2e', '#16213e', '#0f3460'] 
