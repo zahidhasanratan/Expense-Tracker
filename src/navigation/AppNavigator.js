@@ -16,6 +16,10 @@ import EditExpenseScreen from '../screens/EditExpenseScreen';
 import ReportsScreen from '../screens/ReportsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import BudgetScreen from '../screens/BudgetScreen';
+import AccountsScreen from '../screens/AccountsScreen';
+import RecurringScreen from '../screens/RecurringScreen';
+import TransferScreen from '../screens/TransferScreen';
+import GoalsScreen from '../screens/GoalsScreen';
 
 const Stack = createStackNavigator();
 
@@ -41,6 +45,14 @@ const AppNavigator = () => {
         return 'Settings';
       case 'Budget':
         return 'Budget';
+      case 'Accounts':
+        return 'Accounts';
+      case 'Recurring':
+        return 'Recurring';
+      case 'Transfer':
+        return 'Transfer';
+      case 'Goals':
+        return 'Goals';
       case 'AddExpense':
         return 'Add Expense';
       case 'AddTransaction':
@@ -60,7 +72,12 @@ const AppNavigator = () => {
         if (route) {
           const routeName = route.name === 'HomeMain' ? 'Home' : 
                           route.name === 'ReportsMain' ? 'Reports' :
-                          route.name === 'SettingsMain' ? 'Settings' : route.name;
+                          route.name === 'SettingsMain' ? 'Settings' :
+                          route.name === 'BudgetMain' ? 'Budget' :
+                          route.name === 'AccountsMain' ? 'Accounts' :
+                          route.name === 'RecurringMain' ? 'Recurring' :
+                          route.name === 'TransferMain' ? 'Transfer' :
+                          route.name === 'GoalsMain' ? 'Goals' : route.name;
           setCurrentRoute(routeName);
         }
       }}
@@ -69,8 +86,13 @@ const AppNavigator = () => {
         screenOptions={({ navigation, route }) => {
           const routeName = route.name === 'HomeMain' ? 'Home' : 
                           route.name === 'ReportsMain' ? 'Reports' :
-                          route.name === 'SettingsMain' ? 'Settings' : route.name;
-          const showMenu = ['HomeMain', 'ReportsMain', 'SettingsMain'].includes(route.name);
+                          route.name === 'SettingsMain' ? 'Settings' :
+                          route.name === 'BudgetMain' ? 'Budget' :
+                          route.name === 'AccountsMain' ? 'Accounts' :
+                          route.name === 'RecurringMain' ? 'Recurring' :
+                          route.name === 'TransferMain' ? 'Transfer' :
+                          route.name === 'GoalsMain' ? 'Goals' : route.name;
+          const showMenu = ['HomeMain', 'ReportsMain', 'SettingsMain', 'BudgetMain', 'AccountsMain', 'RecurringMain', 'TransferMain', 'GoalsMain'].includes(route.name);
           
           return {
             headerStyle: {
@@ -140,6 +162,22 @@ const AppNavigator = () => {
         <Stack.Screen
           name="BudgetMain"
           component={BudgetScreen}
+        />
+        <Stack.Screen
+          name="AccountsMain"
+          component={AccountsScreen}
+        />
+        <Stack.Screen
+          name="RecurringMain"
+          component={RecurringScreen}
+        />
+        <Stack.Screen
+          name="TransferMain"
+          component={TransferScreen}
+        />
+        <Stack.Screen
+          name="GoalsMain"
+          component={GoalsScreen}
         />
       </Stack.Navigator>
 

@@ -26,7 +26,7 @@ import CategoryManager from '../components/CategoryManager';
  * SettingsScreen Component
  * App settings including theme toggle, export, and reset
  */
-const SettingsScreen = () => {
+const SettingsScreen = ({ navigation }) => {
   const theme = useThemeStore((state) => state.theme);
   const toggleTheme = useThemeStore((state) => state.toggleTheme);
   const expenses = useExpenseStore((state) => state.expenses);
@@ -175,6 +175,95 @@ const SettingsScreen = () => {
           </TouchableOpacity>
         </View>
 
+        {/* Quick Access */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Quick Access</Text>
+          
+          <TouchableOpacity
+            style={styles.settingItem}
+            onPress={() => navigation?.navigate('AccountsMain')}
+            activeOpacity={0.7}
+          >
+            <View style={styles.settingLeft}>
+              <Ionicons name="card-outline" size={24} color="#2196F3" />
+              <View>
+                <Text style={styles.settingLabel}>Manage Accounts</Text>
+                <Text style={styles.settingDescription}>
+                  Add or edit your accounts
+                </Text>
+              </View>
+            </View>
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={isDark ? '#B0B0B0' : '#757575'}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.settingItem}
+            onPress={() => navigation?.navigate('RecurringMain')}
+            activeOpacity={0.7}
+          >
+            <View style={styles.settingLeft}>
+              <Ionicons name="repeat-outline" size={24} color="#FF9800" />
+              <View>
+                <Text style={styles.settingLabel}>Recurring Transactions</Text>
+                <Text style={styles.settingDescription}>
+                  Manage recurring expenses and income
+                </Text>
+              </View>
+            </View>
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={isDark ? '#B0B0B0' : '#757575'}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.settingItem}
+            onPress={() => navigation?.navigate('TransferMain')}
+            activeOpacity={0.7}
+          >
+            <View style={styles.settingLeft}>
+              <Ionicons name="swap-horizontal-outline" size={24} color="#00BCD4" />
+              <View>
+                <Text style={styles.settingLabel}>Transfer Funds</Text>
+                <Text style={styles.settingDescription}>
+                  Transfer money between accounts
+                </Text>
+              </View>
+            </View>
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={isDark ? '#B0B0B0' : '#757575'}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.settingItem}
+            onPress={() => navigation?.navigate('GoalsMain')}
+            activeOpacity={0.7}
+          >
+            <View style={styles.settingLeft}>
+              <Ionicons name="flag-outline" size={24} color="#E91E63" />
+              <View>
+                <Text style={styles.settingLabel}>Financial Goals</Text>
+                <Text style={styles.settingDescription}>
+                  Set and track your financial goals
+                </Text>
+              </View>
+            </View>
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={isDark ? '#B0B0B0' : '#757575'}
+            />
+          </TouchableOpacity>
+        </View>
+
         {/* Settings Options */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Appearance</Text>
@@ -252,12 +341,6 @@ const SettingsScreen = () => {
           </View>
         </View>
 
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            Built with Expo & React Native
-          </Text>
-        </View>
         </ScrollView>
 
         {/* Currency Selector Modal */}
