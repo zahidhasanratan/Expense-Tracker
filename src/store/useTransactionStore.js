@@ -198,6 +198,40 @@ export const useTransactionStore = create((set, get) => {
       saveAccounts(accounts).catch(console.error);
     },
 
+    /**
+     * Get current balance for an account.
+     * Uses the account's stored opening balance plus all active transactions.
+     *
+     * - income: increases balance
+     * - expense: decreases balance
+     * - transfer: decreases "fromAccount", increases "toAccount"
+     */
+    getAccountsBalance: (accountId) => {
+      const account = get().accounts.find(a => a.id === accountId);
+      const openingBalance = Number(account?.balance) || 0;
+
+      const transactions = get().getActiveTransactions();
+      const delta = transactions.reduce((sum, t) => {
+        if (!t) return sum;
+
+        // Transfers
+        if (t.type === 'transfer') {
+          const amount = Number(t.amount) || 0;
+          if (t.fromAccount === accountId) return sum - amount;
+          if (t.toAccount === accountId) return sum + amount;
+          return sum;
+        }
+
+        // Regular income/expense attached to `account`
+        if (t.account !== accountId) return sum;
+        const amount = Number(t.amount) || 0;
+        if (t.type === 'income') return sum + amount;
+        return sum - amount; // expense default
+      }, 0);
+
+      return openingBalance + delta;
+    },
+
     // Merchant management
     addMerchant: (merchant) => {
       const merchants = [...get().merchants];
