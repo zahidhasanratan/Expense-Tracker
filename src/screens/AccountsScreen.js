@@ -42,7 +42,7 @@ const AccountsScreen = () => {
   const styles = getStyles(isDark);
 
   const accountTypes = [
-    { id: 'cash', name: 'Cash', icon: 'cash-outline', color: '#4CAF50' },
+    { id: 'cash', name: 'Cash', icon: 'wallet-outline', color: '#4CAF50' },
     { id: 'bank', name: 'Bank Account', icon: 'card-outline', color: '#2196F3' },
     { id: 'credit', name: 'Credit Card', icon: 'card', color: '#FF9800' },
     { id: 'savings', name: 'Savings', icon: 'wallet-outline', color: '#9C27B0' },
@@ -216,12 +216,13 @@ const AccountsScreen = () => {
           animationType="slide"
           onRequestClose={() => setShowAddModal(false)}
         >
-          <KeyboardAvoidingView
-            style={styles.modalOverlay}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-          >
-            <View style={styles.modalContent}>
+          <View style={styles.modalOverlay}>
+            <KeyboardAvoidingView
+              style={styles.keyboardAvoidingView}
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+            >
+              <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>
                   {editingAccount ? 'Edit Account' : 'Add Account'}
@@ -308,8 +309,9 @@ const AccountsScreen = () => {
                   </LinearGradient>
                 </TouchableOpacity>
               </ScrollView>
-            </View>
-          </KeyboardAvoidingView>
+              </View>
+            </KeyboardAvoidingView>
+          </View>
         </Modal>
       </LinearGradient>
     </SafeAreaView>
@@ -470,25 +472,34 @@ const getStyles = (isDark) =>
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
       justifyContent: 'flex-end',
     },
+    keyboardAvoidingView: {
+      flex: 1,
+      justifyContent: 'flex-end',
+    },
     modalContent: {
       backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
       borderTopLeftRadius: 24,
       borderTopRightRadius: 24,
       maxHeight: '90%',
+      minHeight: 300,
       paddingTop: 24,
+      alignSelf: 'stretch',
     },
     modalScrollView: {
-      flex: 1,
+      flexGrow: 0,
+      flexShrink: 1,
     },
     modalScrollContent: {
       paddingHorizontal: 24,
       paddingBottom: 24,
+      flexGrow: 0,
     },
     modalHeader: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
       marginBottom: 24,
+      paddingHorizontal: 24,
     },
     modalTitle: {
       fontSize: 20,

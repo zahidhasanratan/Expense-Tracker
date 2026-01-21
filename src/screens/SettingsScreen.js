@@ -137,7 +137,7 @@ const SettingsScreen = ({ navigation }) => {
             activeOpacity={0.7}
           >
             <View style={styles.settingLeft}>
-              <Ionicons name="cash-outline" size={24} color="#4CAF50" />
+              <Ionicons name="wallet-outline" size={24} color="#4CAF50" />
               <View>
                 <Text style={styles.settingLabel}>Currency</Text>
                 <Text style={styles.settingDescription}>

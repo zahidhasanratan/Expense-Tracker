@@ -190,7 +190,7 @@ const SplashScreen = ({ onFinish }) => {
             ]}
           >
             <Ionicons
-              name={['star', 'diamond', 'flash'][index % 3]}
+              name={['star', 'sparkles', 'flash'][index % 3]}
               size={20}
               color="rgba(255, 255, 255, 0.6)"
             />

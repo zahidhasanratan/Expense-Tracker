@@ -488,7 +488,7 @@ const AddTransactionScreen = ({ navigation, route }) => {
                     }}
                   >
                     <Ionicons
-                      name={item.type === 'cash' ? 'cash-outline' : item.type === 'credit' ? 'card-outline' : 'wallet-outline'}
+                      name={item.type === 'cash' ? 'wallet-outline' : item.type === 'credit' ? 'card-outline' : 'wallet-outline'}
                       size={24}
                       color={account === item.id ? '#4CAF50' : (isDark ? '#B0B0B0' : '#757575')}
                     />
