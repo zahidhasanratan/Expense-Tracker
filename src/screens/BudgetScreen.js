@@ -9,6 +9,8 @@ import {
   Switch,
   Alert,
   Modal,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -300,7 +302,11 @@ const BudgetScreen = () => {
           animationType="slide"
           onRequestClose={() => setShowCategoryModal(false)}
         >
-          <View style={styles.modalOverlay}>
+          <KeyboardAvoidingView
+            style={styles.modalOverlay}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+          >
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Set Category Budget</Text>
@@ -309,63 +315,70 @@ const BudgetScreen = () => {
                 </TouchableOpacity>
               </View>
 
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Category</Text>
-                <ScrollView style={styles.categoryList}>
-                  {categories.map((cat) => (
-                    <TouchableOpacity
-                      key={cat}
-                      style={[
-                        styles.categoryOption,
-                        selectedCategory === cat && styles.categoryOptionSelected,
-                      ]}
-                      onPress={() => setSelectedCategory(cat)}
-                    >
-                      <Text
-                        style={[
-                          styles.categoryOptionText,
-                          selectedCategory === cat && styles.categoryOptionTextSelected,
-                        ]}
-                      >
-                        {cat}
-                      </Text>
-                      {selectedCategory === cat && (
-                        <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-                      )}
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
-
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Budget Amount</Text>
-                <View style={styles.amountInputContainer}>
-                  <Text style={styles.currencySymbol}>{currency.symbol}</Text>
-                  <TextInput
-                    style={styles.amountInput}
-                    placeholder="0.00"
-                    placeholderTextColor={isDark ? '#666666' : '#999999'}
-                    value={categoryBudgetInput}
-                    onChangeText={setCategoryBudgetInput}
-                    keyboardType="decimal-pad"
-                  />
-                </View>
-              </View>
-
-              <TouchableOpacity
-                style={styles.modalSaveButton}
-                onPress={handleSaveCategoryBudget}
-                disabled={!selectedCategory || !categoryBudgetInput}
+              <ScrollView
+                style={styles.modalScrollView}
+                contentContainerStyle={styles.modalScrollContent}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
               >
-                <LinearGradient
-                  colors={['#4CAF50', '#45a049']}
-                  style={styles.modalSaveButtonGradient}
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Category</Text>
+                  <ScrollView style={styles.categoryList} nestedScrollEnabled={true}>
+                    {categories.map((cat) => (
+                      <TouchableOpacity
+                        key={cat}
+                        style={[
+                          styles.categoryOption,
+                          selectedCategory === cat && styles.categoryOptionSelected,
+                        ]}
+                        onPress={() => setSelectedCategory(cat)}
+                      >
+                        <Text
+                          style={[
+                            styles.categoryOptionText,
+                            selectedCategory === cat && styles.categoryOptionTextSelected,
+                          ]}
+                        >
+                          {cat}
+                        </Text>
+                        {selectedCategory === cat && (
+                          <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                        )}
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Budget Amount</Text>
+                  <View style={styles.amountInputContainer}>
+                    <Text style={styles.currencySymbol}>{currency.symbol}</Text>
+                    <TextInput
+                      style={styles.amountInput}
+                      placeholder="0.00"
+                      placeholderTextColor={isDark ? '#666666' : '#999999'}
+                      value={categoryBudgetInput}
+                      onChangeText={setCategoryBudgetInput}
+                      keyboardType="decimal-pad"
+                    />
+                  </View>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.modalSaveButton}
+                  onPress={handleSaveCategoryBudget}
+                  disabled={!selectedCategory || !categoryBudgetInput}
                 >
-                  <Text style={styles.modalSaveButtonText}>Save Budget</Text>
-                </LinearGradient>
-              </TouchableOpacity>
+                  <LinearGradient
+                    colors={['#4CAF50', '#45a049']}
+                    style={styles.modalSaveButtonGradient}
+                  >
+                    <Text style={styles.modalSaveButtonText}>Save Budget</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </ScrollView>
             </View>
-          </View>
+          </KeyboardAvoidingView>
         </Modal>
       </LinearGradient>
     </SafeAreaView>
@@ -604,8 +617,15 @@ const getStyles = (isDark) =>
       backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
       borderTopLeftRadius: 24,
       borderTopRightRadius: 24,
-      padding: 24,
-      maxHeight: '80%',
+      maxHeight: '90%',
+      paddingTop: 24,
+    },
+    modalScrollView: {
+      flex: 1,
+    },
+    modalScrollContent: {
+      paddingHorizontal: 24,
+      paddingBottom: 24,
     },
     modalHeader: {
       flexDirection: 'row',

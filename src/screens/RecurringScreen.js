@@ -8,6 +8,8 @@ import {
   TextInput,
   Modal,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -214,7 +216,11 @@ const RecurringScreen = () => {
           animationType="slide"
           onRequestClose={() => setShowAddModal(false)}
         >
-          <View style={styles.modalOverlay}>
+          <KeyboardAvoidingView
+            style={styles.modalOverlay}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+          >
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>
@@ -225,121 +231,128 @@ const RecurringScreen = () => {
                 </TouchableOpacity>
               </View>
 
-              {/* Type Toggle */}
-              <View style={styles.typeToggle}>
-                <TouchableOpacity
-                  style={[styles.typeButton, type === 'expense' && styles.typeButtonActive]}
-                  onPress={() => setType('expense')}
-                >
-                  <Text style={[styles.typeButtonText, type === 'expense' && styles.typeButtonTextActive]}>
-                    Expense
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.typeButton, type === 'income' && styles.typeButtonActive]}
-                  onPress={() => setType('income')}
-                >
-                  <Text style={[styles.typeButtonText, type === 'income' && styles.typeButtonTextActive]}>
-                    Income
-                  </Text>
-                </TouchableOpacity>
-              </View>
+              <ScrollView
+                style={styles.modalScrollView}
+                contentContainerStyle={styles.modalScrollContent}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+              >
+                {/* Type Toggle */}
+                <View style={styles.typeToggle}>
+                  <TouchableOpacity
+                    style={[styles.typeButton, type === 'expense' && styles.typeButtonActive]}
+                    onPress={() => setType('expense')}
+                  >
+                    <Text style={[styles.typeButtonText, type === 'expense' && styles.typeButtonTextActive]}>
+                      Expense
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.typeButton, type === 'income' && styles.typeButtonActive]}
+                    onPress={() => setType('income')}
+                  >
+                    <Text style={[styles.typeButtonText, type === 'income' && styles.typeButtonTextActive]}>
+                      Income
+                    </Text>
+                  </TouchableOpacity>
+                </View>
 
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Amount *</Text>
-                <View style={styles.amountInputContainer}>
-                  <Text style={styles.currencySymbol}>{currency.symbol}</Text>
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Amount *</Text>
+                  <View style={styles.amountInputContainer}>
+                    <Text style={styles.currencySymbol}>{currency.symbol}</Text>
+                    <TextInput
+                      style={styles.amountInput}
+                      placeholder="0.00"
+                      placeholderTextColor={isDark ? '#666666' : '#999999'}
+                      value={amount}
+                      onChangeText={setAmount}
+                      keyboardType="decimal-pad"
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Category *</Text>
+                  <ScrollView style={styles.categoryList} nestedScrollEnabled={true}>
+                    {categories.map((cat) => (
+                      <TouchableOpacity
+                        key={cat}
+                        style={[
+                          styles.categoryOption,
+                          category === cat && styles.categoryOptionSelected,
+                        ]}
+                        onPress={() => setCategory(cat)}
+                      >
+                        <Text style={[
+                          styles.categoryOptionText,
+                          category === cat && styles.categoryOptionTextSelected,
+                        ]}>
+                          {cat}
+                        </Text>
+                        {category === cat && (
+                          <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                        )}
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Frequency</Text>
+                  <View style={styles.frequencyGrid}>
+                    {frequencies.map((freq) => (
+                      <TouchableOpacity
+                        key={freq.id}
+                        style={[
+                          styles.frequencyOption,
+                          frequency === freq.id && styles.frequencyOptionSelected,
+                        ]}
+                        onPress={() => setFrequency(freq.id)}
+                      >
+                        <Ionicons
+                          name={freq.icon}
+                          size={24}
+                          color={frequency === freq.id ? '#4CAF50' : (isDark ? '#B0B0B0' : '#757575')}
+                        />
+                        <Text style={[
+                          styles.frequencyOptionText,
+                          frequency === freq.id && styles.frequencyOptionTextSelected,
+                        ]}>
+                          {freq.name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Description (Optional)</Text>
                   <TextInput
-                    style={styles.amountInput}
-                    placeholder="0.00"
+                    style={styles.input}
+                    placeholder="e.g., Netflix subscription, Salary"
                     placeholderTextColor={isDark ? '#666666' : '#999999'}
-                    value={amount}
-                    onChangeText={setAmount}
-                    keyboardType="decimal-pad"
+                    value={description}
+                    onChangeText={setDescription}
                   />
                 </View>
-              </View>
 
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Category *</Text>
-                <ScrollView style={styles.categoryList} nestedScrollEnabled={true}>
-                  {categories.map((cat) => (
-                    <TouchableOpacity
-                      key={cat}
-                      style={[
-                        styles.categoryOption,
-                        category === cat && styles.categoryOptionSelected,
-                      ]}
-                      onPress={() => setCategory(cat)}
-                    >
-                      <Text style={[
-                        styles.categoryOptionText,
-                        category === cat && styles.categoryOptionTextSelected,
-                      ]}>
-                        {cat}
-                      </Text>
-                      {category === cat && (
-                        <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-                      )}
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
-
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Frequency</Text>
-                <View style={styles.frequencyGrid}>
-                  {frequencies.map((freq) => (
-                    <TouchableOpacity
-                      key={freq.id}
-                      style={[
-                        styles.frequencyOption,
-                        frequency === freq.id && styles.frequencyOptionSelected,
-                      ]}
-                      onPress={() => setFrequency(freq.id)}
-                    >
-                      <Ionicons
-                        name={freq.icon}
-                        size={24}
-                        color={frequency === freq.id ? '#4CAF50' : (isDark ? '#B0B0B0' : '#757575')}
-                      />
-                      <Text style={[
-                        styles.frequencyOptionText,
-                        frequency === freq.id && styles.frequencyOptionTextSelected,
-                      ]}>
-                        {freq.name}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Description (Optional)</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="e.g., Netflix subscription, Salary"
-                  placeholderTextColor={isDark ? '#666666' : '#999999'}
-                  value={description}
-                  onChangeText={setDescription}
-                />
-              </View>
-
-              <TouchableOpacity
-                style={styles.saveButton}
-                onPress={handleSave}
-              >
-                <LinearGradient
-                  colors={['#4CAF50', '#45a049']}
-                  style={styles.saveButtonGradient}
+                <TouchableOpacity
+                  style={styles.saveButton}
+                  onPress={handleSave}
                 >
-                  <Text style={styles.saveButtonText}>
-                    {editingItem ? 'Update' : 'Add'} Recurring
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
+                  <LinearGradient
+                    colors={['#4CAF50', '#45a049']}
+                    style={styles.saveButtonGradient}
+                  >
+                    <Text style={styles.saveButtonText}>
+                      {editingItem ? 'Update' : 'Add'} Recurring
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </ScrollView>
             </View>
-          </View>
+          </KeyboardAvoidingView>
         </Modal>
       </LinearGradient>
     </SafeAreaView>
@@ -474,8 +487,15 @@ const getStyles = (isDark) =>
       backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
       borderTopLeftRadius: 24,
       borderTopRightRadius: 24,
-      padding: 24,
       maxHeight: '90%',
+      paddingTop: 24,
+    },
+    modalScrollView: {
+      flex: 1,
+    },
+    modalScrollContent: {
+      paddingHorizontal: 24,
+      paddingBottom: 24,
     },
     modalHeader: {
       flexDirection: 'row',

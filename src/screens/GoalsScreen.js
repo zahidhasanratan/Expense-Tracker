@@ -8,6 +8,8 @@ import {
   TextInput,
   Modal,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -263,7 +265,11 @@ const GoalsScreen = () => {
           animationType="slide"
           onRequestClose={() => setShowAddModal(false)}
         >
-          <View style={styles.modalOverlay}>
+          <KeyboardAvoidingView
+            style={styles.modalOverlay}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+          >
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>
@@ -274,69 +280,76 @@ const GoalsScreen = () => {
                 </TouchableOpacity>
               </View>
 
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Goal Title *</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="e.g., Save $5,000, Pay off credit card"
-                  placeholderTextColor={isDark ? '#666666' : '#999999'}
-                  value={goalTitle}
-                  onChangeText={setGoalTitle}
-                />
-              </View>
-
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Goal Type</Text>
-                <View style={styles.typeToggle}>
-                  <TouchableOpacity
-                    style={[styles.typeButton, goalType === 'save' && styles.typeButtonActive]}
-                    onPress={() => setGoalType('save')}
-                  >
-                    <Text style={[styles.typeButtonText, goalType === 'save' && styles.typeButtonTextActive]}>
-                      Save Money
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.typeButton, goalType === 'pay_off' && styles.typeButtonActive]}
-                    onPress={() => setGoalType('pay_off')}
-                  >
-                    <Text style={[styles.typeButtonText, goalType === 'pay_off' && styles.typeButtonTextActive]}>
-                      Pay Off Debt
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Target Amount *</Text>
-                <View style={styles.amountInputContainer}>
-                  <Text style={styles.currencySymbol}>{currency.symbol}</Text>
+              <ScrollView
+                style={styles.modalScrollView}
+                contentContainerStyle={styles.modalScrollContent}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+              >
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Goal Title *</Text>
                   <TextInput
-                    style={styles.amountInput}
-                    placeholder="0.00"
+                    style={styles.input}
+                    placeholder="e.g., Save $5,000, Pay off credit card"
                     placeholderTextColor={isDark ? '#666666' : '#999999'}
-                    value={goalAmount}
-                    onChangeText={setGoalAmount}
-                    keyboardType="decimal-pad"
+                    value={goalTitle}
+                    onChangeText={setGoalTitle}
                   />
                 </View>
-              </View>
 
-              <TouchableOpacity
-                style={styles.saveButton}
-                onPress={handleSave}
-              >
-                <LinearGradient
-                  colors={['#4CAF50', '#45a049']}
-                  style={styles.saveButtonGradient}
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Goal Type</Text>
+                  <View style={styles.typeToggle}>
+                    <TouchableOpacity
+                      style={[styles.typeButton, goalType === 'save' && styles.typeButtonActive]}
+                      onPress={() => setGoalType('save')}
+                    >
+                      <Text style={[styles.typeButtonText, goalType === 'save' && styles.typeButtonTextActive]}>
+                        Save Money
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.typeButton, goalType === 'pay_off' && styles.typeButtonActive]}
+                      onPress={() => setGoalType('pay_off')}
+                    >
+                      <Text style={[styles.typeButtonText, goalType === 'pay_off' && styles.typeButtonTextActive]}>
+                        Pay Off Debt
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Target Amount *</Text>
+                  <View style={styles.amountInputContainer}>
+                    <Text style={styles.currencySymbol}>{currency.symbol}</Text>
+                    <TextInput
+                      style={styles.amountInput}
+                      placeholder="0.00"
+                      placeholderTextColor={isDark ? '#666666' : '#999999'}
+                      value={goalAmount}
+                      onChangeText={setGoalAmount}
+                      keyboardType="decimal-pad"
+                    />
+                  </View>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.saveButton}
+                  onPress={handleSave}
                 >
-                  <Text style={styles.saveButtonText}>
-                    {editingGoal ? 'Update Goal' : 'Add Goal'}
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
+                  <LinearGradient
+                    colors={['#4CAF50', '#45a049']}
+                    style={styles.saveButtonGradient}
+                  >
+                    <Text style={styles.saveButtonText}>
+                      {editingGoal ? 'Update Goal' : 'Add Goal'}
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </ScrollView>
             </View>
-          </View>
+          </KeyboardAvoidingView>
         </Modal>
       </LinearGradient>
     </SafeAreaView>
@@ -510,8 +523,15 @@ const getStyles = (isDark) =>
       backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
       borderTopLeftRadius: 24,
       borderTopRightRadius: 24,
-      padding: 24,
-      maxHeight: '80%',
+      maxHeight: '90%',
+      paddingTop: 24,
+    },
+    modalScrollView: {
+      flex: 1,
+    },
+    modalScrollContent: {
+      paddingHorizontal: 24,
+      paddingBottom: 24,
     },
     modalHeader: {
       flexDirection: 'row',

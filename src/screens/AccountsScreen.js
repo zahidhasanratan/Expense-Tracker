@@ -8,6 +8,8 @@ import {
   TextInput,
   Modal,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -214,7 +216,11 @@ const AccountsScreen = () => {
           animationType="slide"
           onRequestClose={() => setShowAddModal(false)}
         >
-          <View style={styles.modalOverlay}>
+          <KeyboardAvoidingView
+            style={styles.modalOverlay}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+          >
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>
@@ -225,78 +231,85 @@ const AccountsScreen = () => {
                 </TouchableOpacity>
               </View>
 
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Account Name</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="e.g., My Wallet, Chase Bank"
-                  placeholderTextColor={isDark ? '#666666' : '#999999'}
-                  value={accountName}
-                  onChangeText={setAccountName}
-                />
-              </View>
-
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Account Type</Text>
-                <View style={styles.typeGrid}>
-                  {accountTypes.map((type) => (
-                    <TouchableOpacity
-                      key={type.id}
-                      style={[
-                        styles.typeOption,
-                        accountType === type.id && styles.typeOptionSelected,
-                        { borderColor: type.color },
-                      ]}
-                      onPress={() => setAccountType(type.id)}
-                    >
-                      <Ionicons
-                        name={type.icon}
-                        size={24}
-                        color={accountType === type.id ? type.color : (isDark ? '#B0B0B0' : '#757575')}
-                      />
-                      <Text
-                        style={[
-                          styles.typeOptionText,
-                          accountType === type.id && { color: type.color, fontWeight: '700' },
-                        ]}
-                      >
-                        {type.name}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Initial Balance</Text>
-                <View style={styles.amountInputContainer}>
-                  <Text style={styles.currencySymbol}>{currency.symbol}</Text>
+              <ScrollView
+                style={styles.modalScrollView}
+                contentContainerStyle={styles.modalScrollContent}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+              >
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Account Name</Text>
                   <TextInput
-                    style={styles.amountInput}
-                    placeholder="0.00"
+                    style={styles.input}
+                    placeholder="e.g., My Wallet, Chase Bank"
                     placeholderTextColor={isDark ? '#666666' : '#999999'}
-                    value={initialBalance}
-                    onChangeText={setInitialBalance}
-                    keyboardType="decimal-pad"
+                    value={accountName}
+                    onChangeText={setAccountName}
                   />
                 </View>
-              </View>
 
-              <TouchableOpacity
-                style={styles.saveButton}
-                onPress={handleSave}
-              >
-                <LinearGradient
-                  colors={['#4CAF50', '#45a049']}
-                  style={styles.saveButtonGradient}
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Account Type</Text>
+                  <View style={styles.typeGrid}>
+                    {accountTypes.map((type) => (
+                      <TouchableOpacity
+                        key={type.id}
+                        style={[
+                          styles.typeOption,
+                          accountType === type.id && styles.typeOptionSelected,
+                          { borderColor: type.color },
+                        ]}
+                        onPress={() => setAccountType(type.id)}
+                      >
+                        <Ionicons
+                          name={type.icon}
+                          size={24}
+                          color={accountType === type.id ? type.color : (isDark ? '#B0B0B0' : '#757575')}
+                        />
+                        <Text
+                          style={[
+                            styles.typeOptionText,
+                            accountType === type.id && { color: type.color, fontWeight: '700' },
+                          ]}
+                        >
+                          {type.name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Initial Balance</Text>
+                  <View style={styles.amountInputContainer}>
+                    <Text style={styles.currencySymbol}>{currency.symbol}</Text>
+                    <TextInput
+                      style={styles.amountInput}
+                      placeholder="0.00"
+                      placeholderTextColor={isDark ? '#666666' : '#999999'}
+                      value={initialBalance}
+                      onChangeText={setInitialBalance}
+                      keyboardType="decimal-pad"
+                    />
+                  </View>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.saveButton}
+                  onPress={handleSave}
                 >
-                  <Text style={styles.saveButtonText}>
-                    {editingAccount ? 'Update Account' : 'Add Account'}
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
+                  <LinearGradient
+                    colors={['#4CAF50', '#45a049']}
+                    style={styles.saveButtonGradient}
+                  >
+                    <Text style={styles.saveButtonText}>
+                      {editingAccount ? 'Update Account' : 'Add Account'}
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </ScrollView>
             </View>
-          </View>
+          </KeyboardAvoidingView>
         </Modal>
       </LinearGradient>
     </SafeAreaView>
@@ -461,8 +474,15 @@ const getStyles = (isDark) =>
       backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
       borderTopLeftRadius: 24,
       borderTopRightRadius: 24,
-      padding: 24,
-      maxHeight: '80%',
+      maxHeight: '90%',
+      paddingTop: 24,
+    },
+    modalScrollView: {
+      flex: 1,
+    },
+    modalScrollContent: {
+      paddingHorizontal: 24,
+      paddingBottom: 24,
     },
     modalHeader: {
       flexDirection: 'row',
