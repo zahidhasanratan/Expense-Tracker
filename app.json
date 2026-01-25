@@ -5,9 +5,11 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
+    "icon": "./assets/icon/appIcon.png",
     "splash": {
       "resizeMode": "contain",
-      "backgroundColor": "#4CAF50"
+      "backgroundColor": "#4CAF50",
+      "image": "./assets/icon/appIcon.png"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -17,7 +19,9 @@
       "bundleIdentifier": "com.expensetracker.app"
     },
     "android": {
+      "icon": "./assets/icon/appIcon.png",
       "adaptiveIcon": {
+        "foregroundImage": "./assets/icon/appIcon.png",
         "backgroundColor": "#4CAF50"
       },
       "package": "com.expensetracker.app",
