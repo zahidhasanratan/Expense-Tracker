@@ -9,7 +9,13 @@ npm-debug.*
 *.key
 *.mobileprovision
 *.orig.*
+*.keystore
 web-build/
+
+# Android Keystore
+android/keystore.properties
+android/app/*.keystore
+android/app/expense-tracker-release.keystore
 
 # macOS
 .DS_Store

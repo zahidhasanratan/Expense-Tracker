@@ -17,6 +17,7 @@ import { useThemeStore } from '../store/useThemeStore';
 import SummaryBox from '../components/SummaryBox';
 import ExpenseCard from '../components/ExpenseCard';
 import SearchBar from '../components/SearchBar';
+import AdvancedFilter from '../components/AdvancedFilter';
 import {
   getStartOfDay,
   getEndOfDay,
@@ -43,6 +44,8 @@ const HomeScreen = ({ navigation }) => {
   const isDark = theme === 'dark';
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
+  const [activeFilters, setActiveFilters] = useState({});
 
   const styles = getStyles(isDark);
 
@@ -91,13 +94,57 @@ const HomeScreen = ({ navigation }) => {
     }));
   }, [categoryData, isDark]);
 
-  // Get recent expenses (filtered by search if active)
+  // Get recent expenses (filtered by search/filters if active)
   const recentExpenses = useMemo(() => {
-    const expensesList = searchQuery 
-      ? searchExpenses(searchQuery).sort((a, b) => b.date - a.date).slice(0, 10)
-      : getRecentExpenses(10);
-    return expensesList;
-  }, [expenses, searchQuery, getRecentExpenses, searchExpenses]);
+    let expensesList = expenses;
+    
+    // Apply advanced filters if active
+    if (Object.keys(activeFilters).length > 0) {
+      expensesList = expenses.filter(exp => {
+        // Search query filter
+        if (activeFilters.searchQuery) {
+          const query = activeFilters.searchQuery.toLowerCase();
+          const matchesSearch = 
+            exp.title?.toLowerCase().includes(query) ||
+            exp.category?.toLowerCase().includes(query) ||
+            exp.notes?.toLowerCase().includes(query);
+          if (!matchesSearch) return false;
+        }
+        
+        // Category filter
+        if (activeFilters.category && exp.category !== activeFilters.category) {
+          return false;
+        }
+        
+        // Amount filters
+        if (activeFilters.amountMin !== undefined && (exp.amount || 0) < activeFilters.amountMin) {
+          return false;
+        }
+        if (activeFilters.amountMax !== undefined && (exp.amount || 0) > activeFilters.amountMax) {
+          return false;
+        }
+        
+        // Date range filters
+        if (activeFilters.startDate && exp.date < activeFilters.startDate) {
+          return false;
+        }
+        if (activeFilters.endDate && exp.date > activeFilters.endDate) {
+          return false;
+        }
+        
+        return true;
+      });
+    } else if (searchQuery) {
+      expensesList = searchExpenses(searchQuery);
+    }
+    
+    return expensesList.sort((a, b) => b.date - a.date).slice(0, 10);
+  }, [expenses, searchQuery, activeFilters, searchExpenses]);
+  
+  const handleApplyFilters = (filters) => {
+    setActiveFilters(filters);
+    setSearchQuery(''); // Clear simple search when using advanced filters
+  };
 
   // Handle delete expense
   const handleDelete = (expenseId) => {
@@ -174,11 +221,31 @@ const HomeScreen = ({ navigation }) => {
         )}
 
         {/* Search Bar */}
-        <SearchBar
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          onClear={() => setSearchQuery('')}
-        />
+        <View style={styles.searchContainer}>
+          <SearchBar
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onClear={() => {
+              setSearchQuery('');
+              setActiveFilters({});
+            }}
+          />
+          <TouchableOpacity
+            style={[styles.filterButton, Object.keys(activeFilters).length > 0 && styles.filterButtonActive]}
+            onPress={() => setShowAdvancedFilter(true)}
+          >
+            <Ionicons 
+              name="options" 
+              size={20} 
+              color={Object.keys(activeFilters).length > 0 ? '#FFFFFF' : (isDark ? '#B0B0B0' : '#757575')} 
+            />
+            {Object.keys(activeFilters).length > 0 && (
+              <View style={styles.filterBadge}>
+                <Text style={styles.filterBadgeText}>{Object.keys(activeFilters).length}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
 
         {/* Recent Expenses */}
         <View style={styles.recentContainer}>
@@ -249,6 +316,14 @@ const HomeScreen = ({ navigation }) => {
             <Ionicons name="flash" size={24} color="#FFFFFF" />
           </LinearGradient>
         </TouchableOpacity>
+        
+        {/* Advanced Filter Modal */}
+        <AdvancedFilter
+          visible={showAdvancedFilter}
+          onClose={() => setShowAdvancedFilter(false)}
+          onApply={handleApplyFilters}
+          initialFilters={activeFilters}
+        />
       </LinearGradient>
     </SafeAreaView>
   );
@@ -321,6 +396,44 @@ const getStyles = (isDark) =>
       color: isDark ? '#555555' : '#BDBDBD',
       marginTop: 8,
       textAlign: 'center',
+    },
+    searchContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: 16,
+    },
+    filterButton: {
+      width: 48,
+      height: 48,
+      borderRadius: 12,
+      backgroundColor: isDark ? '#2C2C2C' : '#FFFFFF',
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: isDark ? '#3C3C3C' : '#E0E0E0',
+      position: 'relative',
+    },
+    filterButtonActive: {
+      backgroundColor: '#4CAF50',
+      borderColor: '#4CAF50',
+    },
+    filterBadge: {
+      position: 'absolute',
+      top: -4,
+      right: -4,
+      backgroundColor: '#FF6B6B',
+      borderRadius: 10,
+      minWidth: 20,
+      height: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: 4,
+    },
+    filterBadgeText: {
+      color: '#FFFFFF',
+      fontSize: 10,
+      fontWeight: '700',
     },
     fab: {
       position: 'absolute',

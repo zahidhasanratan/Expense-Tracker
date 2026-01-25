@@ -17,6 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useThemeStore } from '../store/useThemeStore';
 import { useExpenseStore } from '../store/useExpenseStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
+import { useNotificationStore } from '../store/useNotificationStore';
 import { clearAllData } from '../storage/storage';
 import { formatDateTime } from '../utils/format';
 import CurrencySelector from '../components/CurrencySelector';
@@ -32,6 +33,7 @@ const SettingsScreen = ({ navigation }) => {
   const expenses = useExpenseStore((state) => state.expenses);
   const initialize = useExpenseStore((state) => state.initialize);
   const currency = useCurrencyStore((state) => state.currency);
+  const notificationStore = useNotificationStore();
   const isDark = theme === 'dark';
 
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
@@ -285,6 +287,87 @@ const SettingsScreen = ({ navigation }) => {
           </View>
         </View>
 
+        {/* Notifications */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Notifications</Text>
+          
+          <View style={styles.settingItem}>
+            <View style={styles.settingLeft}>
+              <Ionicons name="notifications-outline" size={24} color="#4CAF50" />
+              <View>
+                <Text style={styles.settingLabel}>Enable Notifications</Text>
+                <Text style={styles.settingDescription}>
+                  Receive reminders and alerts
+                </Text>
+              </View>
+            </View>
+            <Switch
+              value={notificationStore.enabled}
+              onValueChange={notificationStore.setEnabled}
+              trackColor={{ false: '#767577', true: '#81C784' }}
+              thumbColor={notificationStore.enabled ? '#4CAF50' : '#f4f3f4'}
+            />
+          </View>
+
+          {notificationStore.enabled && (
+            <>
+              <View style={styles.settingItem}>
+                <View style={styles.settingLeft}>
+                  <Ionicons name="alert-circle-outline" size={24} color="#FF9800" />
+                  <View>
+                    <Text style={styles.settingLabel}>Budget Alerts</Text>
+                    <Text style={styles.settingDescription}>
+                      Get notified when approaching or exceeding budget
+                    </Text>
+                  </View>
+                </View>
+                <Switch
+                  value={notificationStore.budgetAlerts}
+                  onValueChange={notificationStore.setBudgetAlerts}
+                  trackColor={{ false: '#767577', true: '#81C784' }}
+                  thumbColor={notificationStore.budgetAlerts ? '#4CAF50' : '#f4f3f4'}
+                />
+              </View>
+
+              <View style={styles.settingItem}>
+                <View style={styles.settingLeft}>
+                  <Ionicons name="time-outline" size={24} color="#2196F3" />
+                  <View>
+                    <Text style={styles.settingLabel}>Daily Reminders</Text>
+                    <Text style={styles.settingDescription}>
+                      Remind me to log expenses daily
+                    </Text>
+                  </View>
+                </View>
+                <Switch
+                  value={notificationStore.dailyReminders}
+                  onValueChange={(enabled) => notificationStore.setDailyReminders(enabled)}
+                  trackColor={{ false: '#767577', true: '#81C784' }}
+                  thumbColor={notificationStore.dailyReminders ? '#4CAF50' : '#f4f3f4'}
+                />
+              </View>
+
+              <View style={styles.settingItem}>
+                <View style={styles.settingLeft}>
+                  <Ionicons name="calendar-outline" size={24} color="#E91E63" />
+                  <View>
+                    <Text style={styles.settingLabel}>Weekly Summary</Text>
+                    <Text style={styles.settingDescription}>
+                      Receive weekly expense summary
+                    </Text>
+                  </View>
+                </View>
+                <Switch
+                  value={notificationStore.weeklySummary}
+                  onValueChange={(enabled) => notificationStore.setWeeklySummary(enabled)}
+                  trackColor={{ false: '#767577', true: '#81C784' }}
+                  thumbColor={notificationStore.weeklySummary ? '#4CAF50' : '#f4f3f4'}
+                />
+              </View>
+            </>
+          )}
+        </View>
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Data</Text>
           <TouchableOpacity
@@ -339,6 +422,31 @@ const SettingsScreen = ({ navigation }) => {
             <Text style={styles.statLabel}>Total Expenses</Text>
             <Text style={styles.statValue}>{expenses.length}</Text>
           </View>
+        </View>
+
+        {/* Legal */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Legal</Text>
+          <TouchableOpacity
+            style={styles.settingItem}
+            onPress={() => navigation?.navigate('PrivacyPolicy')}
+            activeOpacity={0.7}
+          >
+            <View style={styles.settingLeft}>
+              <Ionicons name="document-text-outline" size={24} color="#2196F3" />
+              <View>
+                <Text style={styles.settingLabel}>Privacy Policy</Text>
+                <Text style={styles.settingDescription}>
+                  Read our privacy policy
+                </Text>
+              </View>
+            </View>
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={isDark ? '#B0B0B0' : '#757575'}
+            />
+          </TouchableOpacity>
         </View>
 
         </ScrollView>

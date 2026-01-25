@@ -20,6 +20,7 @@ import AccountsScreen from '../screens/AccountsScreen';
 import RecurringScreen from '../screens/RecurringScreen';
 import TransferScreen from '../screens/TransferScreen';
 import GoalsScreen from '../screens/GoalsScreen';
+import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen';
 
 const Stack = createStackNavigator();
 
@@ -53,6 +54,8 @@ const AppNavigator = () => {
         return 'Transfer';
       case 'Goals':
         return 'Goals';
+      case 'PrivacyPolicy':
+        return 'Privacy Policy';
       case 'AddExpense':
         return 'Add Expense';
       case 'AddTransaction':
@@ -178,6 +181,10 @@ const AppNavigator = () => {
         <Stack.Screen
           name="GoalsMain"
           component={GoalsScreen}
+        />
+        <Stack.Screen
+          name="PrivacyPolicy"
+          component={PrivacyPolicyScreen}
         />
       </Stack.Navigator>
 

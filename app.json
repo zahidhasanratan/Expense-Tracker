@@ -26,13 +26,21 @@
         "READ_EXTERNAL_STORAGE",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.INTERNET"
+        "android.permission.INTERNET",
+        "POST_NOTIFICATIONS"
       ]
     },
     "web": {},
     "plugins": [
       "expo-file-system",
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-notifications",
+        {
+          "color": "#4CAF50",
+          "sounds": []
+        }
+      ]
     ],
     "extra": {
       "eas": {
